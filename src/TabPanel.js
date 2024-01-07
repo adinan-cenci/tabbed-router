@@ -25,7 +25,9 @@ class TabPanel extends HTMLElement
 
     linkClick(evt) 
     {
-        if (evt.target.tagName != 'A') {
+        var a = TabPanel.getAnchor(evt.target);
+
+        if (!a) {
             return;
         }
 
@@ -36,7 +38,6 @@ class TabPanel extends HTMLElement
 
         evt.tabAvaliated = true;
 
-        var a = evt.target;
         var request = Request.createFromAnchor(a);
 
         if (!request) {
@@ -140,6 +141,19 @@ class TabPanel extends HTMLElement
             : 'not found';
         
         return defaultElement;
+    }
+
+    static getAnchor(element) 
+    {
+        if (element.tagName == 'A') {
+            return element;
+        }
+
+        do {
+            element = element.parentNode;
+        } while(element.parentNode && element.parentNode.tagName == 'A');
+
+        return element;
     }
 }
 

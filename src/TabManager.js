@@ -62,11 +62,11 @@ class TabManager extends HTMLElement
         this.$refs.forwardButton.addEventListener('click', this.forwards.bind(this));
 
         this.$refs.tabLinks = document.createElement('div');
-        this.$refs.tabLinks.classList.add('tab-manager--tab-links');
+        this.$refs.tabLinks.classList.add('tab-manager__tab-links');
         this.$refs.header.append(this.$refs.tabLinks);
 
         this.$refs.tabPanes = document.createElement('div');
-        this.$refs.tabPanes.classList.add('tab-manager--tab-panes');
+        this.$refs.tabPanes.classList.add('tab-manager__tab-panes');
         this.append(this.$refs.tabPanes);
 
         for (var tabId in this.tabs) {
@@ -99,11 +99,12 @@ class TabManager extends HTMLElement
             return;
         }
 
-        if (evt.target.tagName != 'A') {
+        var a = TabPanel.getAnchor(evt.target);
+
+        if (!a) {
             return;
         }
 
-        var a = evt.target;
         var request = Request.createFromAnchor(a);
         var target  = a.getAttribute('target') || 'self';
 
