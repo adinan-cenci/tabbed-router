@@ -153,7 +153,9 @@ class TabPanel extends HTMLElement
             element = element.parentNode;
         } while(element.parentNode && element.parentNode.tagName == 'A');
 
-        return element;
+        return element && element.tagName == 'A'
+            ? element
+            : null;
     }
 }
 
