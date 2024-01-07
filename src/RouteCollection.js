@@ -1,7 +1,7 @@
 import Route from './Route';
 import Request from './Request';
 
-class Router 
+class RouteCollection 
 {
     constructor() 
     {
@@ -38,7 +38,7 @@ class Router
     /**
      * @param {Route} route
      * 
-     * @return {Router}
+     * @return {RouteCollection}
      */
     addRoute(route) 
     {
@@ -50,7 +50,7 @@ class Router
      * @param {RegExp} pattern 
      * @param {callable} callback
      * 
-     * @return {Router}
+     * @return {RouteCollection}
      */
     createRoute(pattern, callback) 
     {
@@ -58,4 +58,4 @@ class Router
     }
 }
 
-export default Router;
+export default RouteCollection;

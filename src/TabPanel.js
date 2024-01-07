@@ -10,21 +10,27 @@ class TabPanel extends HTMLElement
     }
 
     /**
-     * @param {Router} router 
+     * @param {RouteCollection} routeCollection 
      */
-    setRouter(router) 
+    setRouteCollection(routeCollection) 
     {
-        this.router = router;
+        this.routeCollection = routeCollection;
     }
 
     connectedCallback() 
     {
+        this.classList.add('tab-panel');
         this.addEventListener('click', this.linkClick.bind(this));
     }
 
     linkClick(evt) 
     {
         if (evt.target.tagName != 'A') {
+            return;
+        }
+
+        if (evt.ctrlKey || evt.target.getAttribute('target') == '_blank') {
+            // Let the tabmanager handle it.
             return;
         }
 
@@ -61,12 +67,20 @@ class TabPanel extends HTMLElement
      */
     request(request) 
     {
-        var route = this.router.getMatchingRoute(request);
+        var route = this.routeCollection.getMatchingRoute(request);
         var element = route
             ? route.callIt(request)
-            : this.notFoundCallback();
+            : this.notFoundCallback(request);
 
         this.stageElement(element);
+
+        var options = {
+            bubbles: true,
+            detail: request
+        };
+
+        var event = new CustomEvent('tab:request', options);
+        this.dispatchEvent(event);
     }
 
     backwards() 
@@ -116,11 +130,15 @@ class TabPanel extends HTMLElement
         this.append(element);
     }
 
-    notFoundCallback()
+    notFoundCallback(request)
     {
         var defaultElement = document.createElement('div');
         defaultElement.innerHTML = 'Nothing found';
 
+        request.meta.title = request.meta.title
+            ? request.meta.title + ' ( not found )'
+            : 'not found';
+        
         return defaultElement;
     }
 }

@@ -15,7 +15,7 @@ a {
     color: lightblue;
 }
 
-tab-manager {
+.tab-manager {
     display: block;
     min-height: 200px;
     width: 600px;
@@ -27,28 +27,63 @@ tab-manager {
     background: lightgrey;
 }
 
-    .tab-manager--header {
+    .tab-manager__header {
         display: flex;
+        align-items: center;
     }
 
-        .tab-manager--controls {
+        .tab-manager__controls {
             flex-shrink: 1;
+            display: flex;
+            align-items: center;
         }
+
+            .tab-manager__backwards-button:before {
+                content: 'B';
+            }
+
+            .tab-manager__forwards-button:before {
+                content: 'F';
+            }
         
         .tab-manager--tab-links {
+            display: flex;
             flex-grow: 1;
+            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: visible;
         }
 
-            .tab-manager--tab-links button {
-                opacity: 0.5;
-            }
+/*--------------------------*/
 
-            .tab-manager--tab-links button.focused {
-                opacity: 1;
-            }
+.tab-link {
+    opacity: 0.5;
+    display: flex;
+    align-items: center;
+    width: auto;
+    margin: 0px 3px 0px 0px;
+    padding: 0px 3px;
+    background: saddlebrown;
+}
 
+.tab-link.focused {
+    opacity: 1;
+}
 
-tab-panel {
+    .tab-link span {
+        display: block;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .tab-link button:before {
+        content: 'X';
+    }
+
+/*--------------------------*/
+
+.tab-panel {
     display: none;
     width: 100%;
     min-height: 200px;
@@ -56,11 +91,11 @@ tab-panel {
 
     background-color: #333;
 }
-tab-panel.focused {
+.tab-panel.focused {
     display: block;
 }
 
-
+/*--------------------------*/
 
 p {
     margin: 0px auto 20px auto;

@@ -1,7 +1,9 @@
-import Router from './src/Router';
+import RouteCollection from './src/RouteCollection';
 import CustomRequest from './src/Request';
 import TabManager from './src/TabManager';
 import TabPanel from './src/TabPanel';
+import TabLink from './src/TabLink';
+
 
 //--------------------------------
 
@@ -13,7 +15,9 @@ class TestFirst extends HTMLElement
 
         this.append(this.createP('test: ' + n));
 
-        this.append(this.createP('', [this.createA('<<', '#test-first:123?n=' + (n - 1)), '      ', this.createA('>>', '#test-first:123?n=' + (n + 1))] ));
+        this.append(this.createP('', [this.createA('<<', '#test-first:123?n=' + (n - 1), 'decrement'), '      ', this.createA('>>', '#test-first:123?n=' + (n + 1), 'increment')] ));
+
+        this.append(this.createP('', this.createA('open in new tab', '#test-first:123?n=69', 'new tab', '_blank')));
 
         this.append(this.createP('', this.createA('broken link', '#broken')));
 
@@ -38,11 +42,13 @@ class TestFirst extends HTMLElement
         return p;
     }
 
-    createA(text = '', href) 
+    createA(text = '', href, title = '', target = '_self') 
     {
         var a = document.createElement('a');
         a.innerHTML = text;
+        a.setAttribute('title', title);
         a.setAttribute('href', href);
+        a.setAttribute('target', target);
         return a;
     }
 }
@@ -52,26 +58,22 @@ customElements.define('test-first', TestFirst);
 
 customElements.define('tab-manager', TabManager);
 customElements.define('tab-panel', TabPanel);
+customElements.define('tab-link', TabLink);
 
 //--------------------------------
 
 document.addEventListener('DOMContentLoaded', () =>
 {
-    const router = new Router();
-    router.createRoute(/test-first:(?<foobar>.+)/, 'test-first');
+    const routeCollection = new RouteCollection();
+    routeCollection.createRoute(/test-first:(?<foobar>.+)/, 'test-first');
 
     const tabManager = new TabManager();
-    tabManager.setRouter(router);
+    tabManager.setRouteCollection(routeCollection);
 
-    const mainTab = new TabPanel();
-    tabManager.setTab('main-tab', mainTab);
+    const mainTab = tabManager.createTab('main-tab', true);
+    tabManager.createTab('secondary-tab', false);
 
-    const secondaryTab = new TabPanel();
-    tabManager.setTab('secondary-tab', secondaryTab);
-
-    tabManager.focusTab('main-tab');
-
-    window.router = router;
+    window.routeCollection = routeCollection;
     window.tabManager = tabManager;
     document.body.append(tabManager);
 
@@ -84,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () =>
 
     var outside = document.createElement('a');
     outside.setAttribute('href', '#test-first:123?n=1000');
+    outside.setAttribute('title', 'from the outside');
     outside.innerHTML = 'outside';
 
     document.body.append(outside);

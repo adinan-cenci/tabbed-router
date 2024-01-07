@@ -6,11 +6,12 @@ class Request
      * @param {Object} queryParams 
      * @param {Object} attributes 
      */
-    constructor(path, queryParams, attributes = {}) 
+    constructor(path, queryParams, attributes = {}, meta = {}) 
     {
         this.path        = path;
         this.queryParams = typeof queryParams == 'string' ? new URLSearchParams(queryParams) : queryParams;
         this.attributes  = attributes;
+        this.meta        = meta;
     }
 
     /**
@@ -43,7 +44,13 @@ class Request
     static createFromAnchor(a) 
     {
         var href = a.getAttribute('href');
-        return Request.createFromHref(href);
+        var title = a.getAttribute('title') || null;
+        
+        var request = Request.createFromHref(href);
+
+        request.meta.title = title;
+
+        return request;
     }
 
     /**
