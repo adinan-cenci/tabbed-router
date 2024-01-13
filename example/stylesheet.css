@@ -1,0 +1,133 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-size: 16px;
+    line-height: 1.5;
+    font-family: Roboto, Arial;
+
+    color: #eee;
+    background: #333;
+}
+
+a {
+    color: lightblue;
+}
+
+p {
+  margin: 0px auto 20px auto;
+}
+
+#actualThing {
+  margin-top: 500px;
+  height: 300px;
+}
+
+#actualThing:target {
+  text-shadow: 0px 0px 5px red, 0px 0px 5px red;
+}
+
+/*--------------------------*/
+
+.tabbed-router__tab-manager {
+    display: flex;
+    flex-direction: column;
+    width: 800px;
+    max-width: 100%;
+    padding: 20px;
+    margin: 20px auto 20px;
+    background: #666;
+}
+
+.tabbed-router__tab-manager__header {
+  display: flex;
+  align-items: center;
+}
+
+.tabbed-router__tab-manager__controls {
+  flex-shrink: 1;
+  align-items: center;
+  display: flex;
+  width: auto;
+  margin: 0px 10px 0px 0px;
+}
+
+.tabbed-router__tab-manager__controls button {
+  margin: 0px;
+}
+.tabbed-router__tab-manager__backwards-button:before {
+  content: "B";
+}
+
+.tabbed-router__tab-manager__forwards-button:before {
+  content: "F";
+}
+
+.tabbed-router__tab-manager__tab-links {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.tabbed-router__tab-manager__tab-panes {
+  overflow-y: auto;
+}
+
+/*--------------------------*/
+
+.tabbed-router__tab-link {
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  width: auto;
+  padding: 2px 10px;
+  border-radius: 3px;
+  margin: 0px 3px 0px 0px;
+  background: #5a5958;
+}
+
+.tabbed-router__tab-link.focused {
+  opacity: 1;
+}
+
+.tabbed-router__tab-link span {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tabbed-router__tab-link button {
+  padding: 0px;
+  border-radius: 50px;
+  min-width: 26px;
+  min-height: 26px;
+  margin: 0px 0px 0px 10px;
+  text-align: center;
+}
+
+.tabbed-router__tab-link:first-child:last-child button {
+  display: none;
+}
+
+.tabbed-router__tab-link button:before {
+  content: "X";
+}
+
+/*--------------------------*/
+
+.tabbed-router__tab-panel {
+  display: none;
+  width: 100%;
+  min-height: 200px;
+  padding: 10px;
+}
+.tabbed-router__tab-panel.focused {
+  display: block;
+}
+
+/*--------------------------*/
+

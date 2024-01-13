@@ -5,15 +5,15 @@ const sass    = require('gulp-sass')(require('sass'));
 
 async function buildJs() 
 {
-    return gulp.src('./main.js')
+    return gulp.src('./example.js')
 
     .pipe(webpack({
         mode: 'production',
     }))
 
-    .pipe(rename('main.js'))
+    .pipe(rename('example.js'))
 
-    .pipe(gulp.dest('./dist/'));
+    .pipe(gulp.dest('./example/'));
 }
 
 exports.buildJs  = buildJs;

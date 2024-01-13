@@ -1,4 +1,4 @@
-import Request from './Request';
+import HashRequest from './HashRequest';
 
 class Route 
 {
@@ -18,7 +18,7 @@ class Route
     /**
      * Calls the route to instantiate an element.
      *
-     * @param {Request} request 
+     * @param {HashRequest} request 
      * 
      * @return {HTMLElement}
      */
@@ -35,7 +35,7 @@ class Route
     /**
      * Instantiate an element based out of the request.
      *
-     * @param {Request} request 
+     * @param {HashRequest} request 
      *
      * @return {HTMLElement}
      */
@@ -61,13 +61,13 @@ class Route
     /**
      * Checks weather or not this route matches provided request.
      *
-     * @param {Request} request 
+     * @param {HashRequest} request 
      *
      * @return {bool}
      */
     doesItMatcheRequest(request) 
     {
-        return this.getMatchingPattern(request.path)
+        return request.path && this.getMatchingPattern(request.path)
             ? true
             : false;
     }

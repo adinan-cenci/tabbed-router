@@ -1,5 +1,5 @@
 import Route from './Route';
-import Request from './Request';
+import HashRequest from './HashRequest';
 
 class RouteCollection 
 {
@@ -10,7 +10,7 @@ class RouteCollection
 
     /**
      * @param {Route} route 
-     * @param {Request} request 
+     * @param {HashRequest} request 
      * 
      * @return {HTMLElement}
      */
@@ -20,9 +20,9 @@ class RouteCollection
     }
 
     /**
-     * @param {Request} request 
+     * @param {HashRequest} request 
      * 
-     * @return {Route}
+     * @return {Route|null}
      */
     getMatchingRoute(request) 
     {
@@ -36,6 +36,8 @@ class RouteCollection
     }
 
     /**
+     * Adds a new route to the collection.
+     *
      * @param {Route} route
      * 
      * @return {RouteCollection}
@@ -47,6 +49,8 @@ class RouteCollection
     }
 
     /**
+     * Creates and adds a new route.
+     *
      * @param {RegExp} pattern 
      * @param {callable} callback
      * 

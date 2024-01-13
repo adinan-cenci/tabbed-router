@@ -10,6 +10,30 @@ class TabLink extends HTMLElement
         this.rendered = false;
     }
 
+    /**
+     * @param {string} label 
+     *
+     * @return TabLink
+     */
+    setLabel(label) 
+    {
+        this.label = label;
+        if (this.rendered) {
+            this.$refs.label.innerHTML = label;
+        }
+    }
+
+    /**
+     * @param {string} tabId 
+     *
+     * @return TabLink
+     */
+    setTabId(tabId) 
+    {
+        this.tabId = tabId;
+        return this;
+    }
+
     connectedCallback() 
     {
         if (!this.rendered) {
@@ -17,10 +41,13 @@ class TabLink extends HTMLElement
         }
     }
 
+    /**
+     * @private
+     */
     render() 
     {
         this.rendered = true;
-        this.classList.add('tab-link');
+        this.classList.add('tabbed-router__tab-link');
 
         this.$refs.label = document.createElement('span');
         this.$refs.label.innerHTML = this.label;
@@ -30,17 +57,27 @@ class TabLink extends HTMLElement
         this.$refs.closeBtn.setAttribute('title', 'close tab');
         this.append(this.$refs.closeBtn);
 
-        this.addEventListener('click', this.onclick.bind(this));
-        this.$refs.closeBtn.addEventListener('click', this.onCloseBtnClick.bind(this));
+        this.addEventListener('click', this.onClick.bind(this));
+        this.$refs.closeBtn.addEventListener('click', this.onCloseBtnClicked.bind(this));
     }
 
-    onclick() 
+    /**
+     * Event listener.
+     *
+     * @private
+     */
+    onClick() 
     {
-        var event = new CustomEvent('tab-link:clicked', {});
+        var event = new CustomEvent('tabbed-router:tab-link:clicked', {});
         this.dispatchEvent(event);
     }
 
-    onCloseBtnClick(evt) 
+    /**
+     * Event listener.
+     *
+     * @private
+     */
+    onCloseBtnClicked(evt) 
     {
         evt.stopPropagation();
         evt.preventDefault();
@@ -50,21 +87,8 @@ class TabLink extends HTMLElement
             detail: this.tabId
         };
 
-        var event = new CustomEvent('tab-request:closing', options);
+        var event = new CustomEvent('tabbed-router:tab-link:request-closing', options);
         this.dispatchEvent(event);
-    }
-
-    setLabel(label) 
-    {
-        this.label = label;
-        if (this.rendered) {
-            this.$refs.label.innerHTML = label;
-        }
-    }
-
-    setTabId(tabId) 
-    {
-        this.tabId = tabId;
     }
 }
 
