@@ -113,7 +113,7 @@ class TabManager extends HTMLElement
     subRenderPanes() 
     {
         this.$refs.tabPanes = document.createElement('div');
-        this.$refs.tabPanes.classList.add('tab-manager__tab-panes');
+        this.$refs.tabPanes.classList.add('tabbed-router__tab-manager__tab-panes');
         this.append(this.$refs.tabPanes);
     }
 
