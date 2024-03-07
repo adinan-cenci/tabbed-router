@@ -15,7 +15,7 @@ class TabManager extends HTMLElement
 
         this.rendered = false;
 
-        this.currentTabId = null;
+        this.focusedTabId = null;
 
         this.routeCollection = null;
 
@@ -127,12 +127,13 @@ class TabManager extends HTMLElement
         }
 
         var tabId = evt.detail;
-        if (tabId == this.currentTabId) {
+        if (tabId == this.focusedTabId) {
             var newFocus = (this.links[tabId].previousSibling || this.links[tabId].nextSibling).tabId;
             this.focusTab(newFocus);
         }
 
         this.removeTab(tabId);
+        this.updated();
     }
 
     onKeyDown(evt) 
@@ -181,7 +182,7 @@ class TabManager extends HTMLElement
             // target blank ? new tab, do focus.
             target == '_blank'
                 ? this.openInNewTab(request, true)
-                : this.tabs[this.currentTabId].goTo(request);
+                : this.tabs[this.focusedTabId].goTo(request);
         }
     }
 
@@ -220,7 +221,7 @@ class TabManager extends HTMLElement
             // target blank ? new tab, do focus.
             target == '_blank'
                 ? this.openInNewTab(request, true)
-                : this.tabs[this.currentTabId].goTo(request);
+                : this.tabs[this.focusedTabId].goTo(request);
         }
     }
 
@@ -250,6 +251,7 @@ class TabManager extends HTMLElement
         var request = evt.detail;
 
         this.links[tabId].setLabel(request.meta.title || tabId);
+        this.updated();
     }
 
     getTabIdForTabPanel(tabPanel) 
@@ -265,17 +267,17 @@ class TabManager extends HTMLElement
 
     backwards() 
     {
-        this.tabs[ this.currentTabId ].backwards();
+        this.tabs[ this.focusedTabId ].backwards();
     }
 
     forwards() 
     {
-        this.tabs[ this.currentTabId ].forwards();
+        this.tabs[ this.focusedTabId ].forwards();
     }
 
     focusTab(tabId) 
     {
-        this.currentTabId = tabId;
+        this.focusedTabId = tabId;
 
         for (var tId in this.tabs) {
             if (tId == tabId) {
@@ -400,6 +402,15 @@ class TabManager extends HTMLElement
         });
 
         return button;
+    }
+
+    /**
+     * @private
+     */
+    updated()
+    {
+        var event = new CustomEvent('tabbed-router:updated', {bubbles: true});
+        this.dispatchEvent(event);
     }
 }
 
