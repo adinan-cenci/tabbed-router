@@ -238,7 +238,7 @@ class TabPanel extends HTMLElement
 
         do {
             element = element.parentNode;
-        } while(element.parentNode && element.parentNode instanceof HTMLAnchorElement);
+        } while(element.parentNode && !(element instanceof HTMLAnchorElement));
 
         return element && element instanceof HTMLAnchorElement
             ? element
