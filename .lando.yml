@@ -1,0 +1,9 @@
+name: tabbed-router
+recipe: lamp
+config:
+  php: '8.1'
+  webroot: ./
+  composer_version: '2.5.1'
+  xdebug: true
+  config:
+    server: ./.lando/
