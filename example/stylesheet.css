@@ -1,31 +1,80 @@
 * {
     box-sizing: border-box;
+    font-size: inherit;
+    line-height: inherit;
 }
 
 body {
+    margin: 0px;
     font-size: 16px;
     line-height: 1.5;
     font-family: Roboto, Arial;
+    color: #cdd6f4;
+    background: #181825;
+}
 
-    color: #eee;
-    background: #333;
+code {
+    display: inline-block;
+    border-radius: 3px;
+    padding: 4px;
+    line-height: 0.85em;
+    background-color: #313244;
 }
 
 a {
-    color: lightblue;
+    color: #89b4fa;
 }
 
-p {
-  margin: 0px auto 20px auto;
+h1, h2, h3 {
+    line-height: 1.1em;
+}
+
+h1 {
+    font-size: 2.5rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+}
+
+h1, h2, h3, p, ul, ol, form {
+    margin: 0px auto 20px auto;
+}
+
+ul, ol {
+    padding-left: 20px;
+}
+
+/*--------------------------*/
+
+form {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+form label {
+    width: 20%;
+}
+
+form label + input {
+    width: 80%;
+}
+
+/*--------------------------*/
+
+#wrapper {
+    width: 1024px;
+    max-width: 100%;
+    margin: 0px auto;
 }
 
 #actualThing {
-  margin-top: 500px;
-  height: 300px;
+    margin-top: 800px;
+    height: 300px;
 }
 
 #actualThing:target {
-  text-shadow: 0px 0px 5px red, 0px 0px 5px red;
+    text-shadow: 0px 0px 5px red, 0px 0px 5px red;
 }
 
 /*--------------------------*/
@@ -33,101 +82,114 @@ p {
 .tabbed-router__tab-manager {
     display: flex;
     flex-direction: column;
-    width: 800px;
-    max-width: 100%;
-    padding: 20px;
     margin: 20px auto 20px;
-    background: #666;
-}
-
-.tabbed-router__tab-manager__header {
-  display: flex;
-  align-items: center;
-}
-
-.tabbed-router__tab-manager__controls {
-  flex-shrink: 1;
-  align-items: center;
-  display: flex;
-  width: auto;
-  margin: 0px 10px 0px 0px;
-}
-
-.tabbed-router__tab-manager__controls button {
-  margin: 0px;
-}
-.tabbed-router__tab-manager__backwards-button:before {
-  content: "B";
-}
-
-.tabbed-router__tab-manager__forwards-button:before {
-  content: "F";
-}
-
-.tabbed-router__tab-manager__tab-links {
-  display: flex;
-  flex-grow: 1;
-  overflow: hidden;
-  overflow-x: auto;
-  overflow-y: visible;
-}
-
-.tabbed-router__tab-manager__tab-panes {
-  overflow-y: auto;
 }
 
 /*--------------------------*/
 
-.tabbed-router__tab-link {
-  opacity: 0.5;
-  display: flex;
-  align-items: center;
-  width: auto;
-  padding: 2px 10px;
-  border-radius: 3px;
-  margin: 0px 3px 0px 0px;
-  background: #5a5958;
-}
+    .tabbed-router__tab-manager__header {
+        display: flex;
+        align-items: center;
+    }
 
-.tabbed-router__tab-link.focused {
-  opacity: 1;
-}
+        .tabbed-router__tab-manager__controls {
+            flex-shrink: 1;
+            align-items: center;
+            display: flex;
+            width: auto;
+            margin: 0px 10px 0px 0px;
+        }
 
-.tabbed-router__tab-link span {
-  display: block;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
+            .tabbed-router__tab-manager__controls button {
+                margin: 0px;
+            }
+            .tabbed-router__tab-manager__backwards-button:before {
+                content: "←";
+            }
 
-.tabbed-router__tab-link button {
-  padding: 0px;
-  border-radius: 50px;
-  min-width: 26px;
-  min-height: 26px;
-  margin: 0px 0px 0px 10px;
-  text-align: center;
-}
+            .tabbed-router__tab-manager__forwards-button:before {
+                content: "→";
+            }
 
-.tabbed-router__tab-link:first-child:last-child button {
-  display: none;
-}
+        /*--------------------------*/
 
-.tabbed-router__tab-link button:before {
-  content: "X";
-}
+        .tabbed-router__tab-manager__tabs-bar {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: visible;
+        }
 
-/*--------------------------*/
+            .tabbed-router__tab-button {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
 
-.tabbed-router__tab-panel {
-  display: none;
-  width: 100%;
-  min-height: 200px;
-  padding: 10px;
-}
-.tabbed-router__tab-panel.focused {
-  display: block;
-}
+                min-width: 0;
+                width: auto;
+                padding: 4px 10px;
+                border-radius: 3px 3px 0px 0px;
+                margin: 0px 3px 0px 0px;
+                background: #6c7086;
+            }
+            
+            .tabbed-router__tab-button.tabbed-router__tab-button--focused {
+                background: #45475a;
+            }
+            
+                .tabbed-router__tab-button span {
+                    display: block;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                }
+            
+                .tabbed-router__tab-button button {
+                    opacity: 0;
+                    padding: 0px;
+                    border-radius: 50px;
+                    border: none;
+                    margin: 0px 0px 0px 10px;
+                    width: 20px;
+                    height: 20px;
+                    font-size: 10px;
+                    font-weight: bold;
+                    text-align: center;
+                    color: white;
+                    background-color: transparent;
+                }
+            
+                .tabbed-router__tab-button:hover button {
+                    opacity: 1;
+                }
+            
+                .tabbed-router__tab-button button:hover {
+                    background-color: rgba(255, 255, 255, 0.3);
+                }
+            
+                .tabbed-router__tab-button:first-child:last-child button {
+                    display: none;
+                }
+            
+                .tabbed-router__tab-button button:before {
+                    content: "X";
+                }
 
-/*--------------------------*/
+    /*--------------------------*/
 
+    .tabbed-router__tab-manager__tab-panels {
+        overflow-y: auto;
+        padding: 20px;
+        background: #45475a;
+    }
+
+        .tabbed-router__tab-panel {
+            display: none;
+            width: 100%;
+            min-height: 200px;
+        }
+
+        .tabbed-router__tab-panel.tabbed-router__tab-panel--focused {
+            display: block;
+        }

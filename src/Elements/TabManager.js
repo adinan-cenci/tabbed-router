@@ -1,6 +1,7 @@
 import HashRequest from '../Routing/HashRequest';
-import TabLink     from './TabLink';
 import TabPanel    from './TabPanel';
+import TabControls from './TabControls';
+import TabsBar     from './TabsBar';
 
 class TabManager extends HTMLElement 
 {
@@ -8,47 +9,275 @@ class TabManager extends HTMLElement
     {
         super();
 
-        this.$refs    = {};
-        this.links    = {};
-        this.tabs     = {};
-        this.tabCount = 0;
+        /**
+         * @private
+         *
+         * @var {Object}
+         *   Relational object to track dom elements.
+         */
+        this.$refs           = {
+            tabs: {}
+        };
 
-        this.rendered = false;
+        /**
+         * @private
+         *
+         * @var {Int}
+         *   The number of opened tabs.
+         */
+        this.tabCount        = 0;
 
-        this.focusedTabId = null;
+        /**
+         * @private
+         *
+         * @var {Bool}
+         *   Indicates if the panel has been rendered already.
+         */
+        this.rendered        = false;
 
+        /**
+         * @private
+         *
+         * @var {String}
+         *   The id of the currently focused tab.
+         */
+        this.focusedTabId    = null;
+
+        /**
+         * @private
+         *
+         * @var {RouteCollection}
+         *   The collection of routes.
+         */
         this.routeCollection = null;
 
-        this.ctrlKey = false;
+        /**
+         * @private
+         *
+         * @var {Bool}
+         *   Indicates if the ctrl key is currently pressed.
+         */
+        this.ctrlKey         = false;
     }
 
     /**
+     * Sets the route collection.
+     *
      * @param {RouteCollection} routeCollection 
+     *
+     * @return {TabManager}
+     *   Returns itself.
      */
     setRouteCollection(routeCollection) 
     {
         this.routeCollection = routeCollection;
+        return this;
     }
 
-    connectedCallback() 
+    /**
+     * Generates an unique id to be used as a tab id.
+     *
+     * @returns {String}
+     *   An unique id.
+     */
+    generateNewTabId() 
     {
-        if (!this.rendered) {
-            this.render();
+        var id;
+
+        do {
+            id = 'tab-' + Math.floor(Math.random() * 1000);
+        } while(this.$refs.tabs[id]);
+
+        return id;
+    }
+
+    /**
+     * Moves backwards in the navigation history of the focused tab.
+     */
+    backwards() 
+    {
+        var tab;
+
+        if (tab = this.getFocusedTab()) {
+            tab.backwards();
         }
     }
 
     /**
+     * Moves forwards in the navigation history of the focused tab.
+     */
+    forwards() 
+    {
+        var tab;
+
+        if (tab = this.getFocusedTab()) {
+            tab.forwards();
+        }
+    }
+
+    /**
+     * Focus the specified tab.
+     *
+     * @param {String} tabId 
+     *   The tab id.
+     *
+     * @returns {TabPanel|null}
+     *   The focused tab.
+     */
+    focusTab(tabId) 
+    {
+        var tab = this.getTab(tabId);
+        if (!tab) {
+            throw `Tab ${tabId} not found`;
+        }
+
+        this.focusedTabId = tabId;
+
+        for (var tb of this.getTabs()) {
+            tb.tabId == tabId
+                ? tb.focus()
+                : tb.unfocus()
+        }
+
+        this.fireEvent('tabbed-router:tab-focused', true, {tab});
+
+        return tab;
+    }
+
+    /**
+     * Creates a new tab and adds it.
+     *
+     * @param {String} tabId
+     *   The tab id.
+     * @param {Bool} focus
+     *   To focus on it once added.
+     *
+     * @returns {TabPanel}
+     *   The newly created tab.
+     */
+    createTab(tabId, focus = true) 
+    {
+        var newTab = new TabPanel();
+        this.setTab(tabId, newTab);
+        if (focus) {
+            this.focusTab(tabId);
+        }
+
+        return newTab;
+    }
+
+    /**
+     * Return all opened tabs.
+     *
+     * @returns {Array}
+     */
+    getTabs()
+    {
+        return Object.values(this.$refs.tabs);
+    }
+
+    /**
+     * Returns the tab with the matching id.
+     *
+     * @param {String} tabId
+     *
+     * @returns {TabPanel|null}
+     *   The matching tab.
+     */
+    getTab(tabId)
+    {
+        return this.$refs.tabs[ tabId ] || null;
+    }
+
+    /**
+     * Returns the currently focused tab.
+     *
+     * @returns {TabPanel|null}
+     */
+    getFocusedTab()
+    {
+        return this.$refs.tabs[ this.focusedTabId ] || null;
+    }
+
+    /**
+     * Adds a tab.
+     *
+     * @param {string} tabId
+     *   The tab id.
+     *
+     * @param {TabPanel} tabPanel
+     *   The tab to be added.
+     */
+    setTab(tabId, tabPanel) 
+    {
+        if (this.$refs.tabs[tabId]) {
+            throw `Tab {tabId} is already set`;
+        }
+
+        tabPanel.setRouteCollection(this.routeCollection);
+        tabPanel.setTabId(tabId);
+
+        this.$refs.tabs[tabId] = tabPanel;
+
+        if (this.rendered) {
+            this.attachTab(tabId);
+        }
+    }
+
+    /**
+     * Removes the specified tab.
+     *
+     * @param {string} tabId
+     *   The tab id.
+     *
+     * @return {TabPanel|null}
+     *   The removed tab.
+     */
+    removeTab(tabId) 
+    {
+        var tabPanel;
+
+        if (!this.$refs.tabs[tabId]) {
+            return null;
+        }
+
+        tabPanel = this.$refs.tabs[tabId];
+
+        if (this.rendered) {
+            this.detachTab(tabId);
+        }
+
+        this.fireEvent('tabbed-router:tab-closed', true, {tab: tabPanel});
+
+        return tabPanel;
+    }
+
+    /**
+     * Callback of the Custom elements API.
+     *
+     * @private
+     */
+    connectedCallback() 
+    {
+        if (!this.rendered) {
+            this.render();
+            this.rendered = true;
+        }
+    }
+
+    /**
+     * Builds up the element and set up event listeners.
+     *
      * @private
      */
     render() 
     {
-        this.rendered = true;
         this.classList.add('tabbed-router__tab-manager');
         
         this.subRenderHeader();
         this.subRenderPanes();        
 
-        for (var tabId in this.tabs) {
+        for (var tabId in this.$refs.tabs) {
             this.attachTab(tabId);
         }
 
@@ -57,8 +286,11 @@ class TabManager extends HTMLElement
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         document.addEventListener('keyup',   this.onKeyUp.bind(this));
 
-        this.addEventListener('tabbed-router:tab-panel:request-made',   this.onTabRequest.bind(this));
-        this.addEventListener('tabbed-router:tab-link:request-closing', this.onRequestToCloseTab.bind(this));
+        this.addEventListener('tabbed-router:request-closing', this.onRequestToCloseTab.bind(this));
+        this.addEventListener('tabbed-router:request-focus', this.onRequestFocus.bind(this));
+
+        this.addEventListener('tabbed-router:request-backwards', this.onRequestBackwards.bind(this));
+        this.addEventListener('tabbed-router:request-forwards', this.onRequestForwards.bind(this));
     }
 
     /**
@@ -70,40 +302,10 @@ class TabManager extends HTMLElement
         this.$refs.header.classList.add('tabbed-router__tab-manager__header');
         this.append(this.$refs.header);
 
-        this.subRenderControls();
-        this.subRenderTabLinks();
-    }
-
-    /**
-     * @private
-     */
-    subRenderControls() 
-    {
-        this.$refs.controls = document.createElement('div');
-        this.$refs.controls.classList.add('tabbed-router__tab-manager__controls');
+        this.$refs.controls = new TabControls();
         this.$refs.header.append(this.$refs.controls);
-
-        this.$refs.backwardButton = document.createElement('button');
-        this.$refs.backwardButton.title = 'Backwards';
-        this.$refs.backwardButton.classList.add('tabbed-router__tab-manager__backwards-button');
-        this.$refs.controls.append(this.$refs.backwardButton);
-
-        this.$refs.forwardButton  = document.createElement('button');
-        this.$refs.forwardButton.title = 'Forwards';
-        this.$refs.forwardButton.classList.add('tabbed-router__tab-manager__forwards-button');
-        this.$refs.controls.append(this.$refs.forwardButton);
-
-        this.$refs.backwardButton.addEventListener('click', this.backwards.bind(this));
-        this.$refs.forwardButton.addEventListener('click', this.forwards.bind(this));
-    }
-
-    /**
-     * @private
-     */
-    subRenderTabLinks() 
-    {
-        this.$refs.tabLinks = document.createElement('div');
-        this.$refs.tabLinks.classList.add('tabbed-router__tab-manager__tab-links');
+        
+        this.$refs.tabLinks = new TabsBar();
         this.$refs.header.append(this.$refs.tabLinks);
     }
 
@@ -112,41 +314,101 @@ class TabManager extends HTMLElement
      */
     subRenderPanes() 
     {
-        this.$refs.tabPanes = document.createElement('div');
-        this.$refs.tabPanes.classList.add('tabbed-router__tab-manager__tab-panes');
-        this.append(this.$refs.tabPanes);
+        this.$refs.tabPanels = document.createElement('div');
+        this.$refs.tabPanels.classList.add('tabbed-router__tab-manager__tab-panels');
+        this.append(this.$refs.tabPanels);
     }
 
     /**
+     * Event listener.
+     *
      * @private
+     *
+     * @param {Event} evt
+     */
+    onRequestFocus(evt)
+    {
+        var tabId = evt.detail;
+        this.focusTab(tabId);
+    }
+
+    /**
+     * Event listener.
+     *
+     * @private
+     *
+     * @param {Event} evt
+     */
+    onRequestBackwards(evt)
+    {
+        this.backwards();
+    }
+
+    /**
+     * Event listener.
+     *
+     * @private
+     *
+     * @param {Event} evt
+     */
+    onRequestForwards(evt)
+    {
+        this.forwards();
+    }
+
+    /**
+     * Event listener.
+     *
+     * @private
+     *
+     * @param {Event} evt
      */
     onRequestToCloseTab(evt) 
     {
+        // Won't be closing the only tab.
         if (this.tabCount <= 1) {
             return;
         }
 
         var tabId = evt.detail;
+
         if (tabId == this.focusedTabId) {
-            var newFocus = (this.links[tabId].previousSibling || this.links[tabId].nextSibling).tabId;
+            var newFocus = (this.$refs.tabLinks.getButton(tabId).previousSibling || this.$refs.tabLinks.getButton(tabId).nextSibling).tabId;
             this.focusTab(newFocus);
         }
 
         this.removeTab(tabId);
-        this.updated();
     }
 
+    /**
+     * Event listener.
+     *
+     * @private
+     *
+     * @param {KeyboardEvent} evt
+     *   Keyboard event.
+     */
     onKeyDown(evt) 
     {
         this.ctrlKey = evt.ctrlKey;
     }
 
+    /**
+     * Event listener.
+     *
+     * @private
+     *
+     * @param {KeyboardEvent} evt
+     *   Keyboard event.
+     */
     onKeyUp(evt) 
     {
         this.ctrlKey = evt.ctrlKey;
     }
 
     /**
+     * Event listener.
+     *
      * @private
      *
      * @param {PointerEvent} evt
@@ -168,6 +430,7 @@ class TabManager extends HTMLElement
             request == false ||
             request.matchesHtmlElement()
         ) {
+            // Nothing to do, stop here.
             return;
         }
 
@@ -175,18 +438,20 @@ class TabManager extends HTMLElement
         evt.preventDefault();
 
         if (evt.ctrlKey) {
-            // Net tab, do not focus.
+            // New tab, do not focus.
             this.openInNewTab(request, false);
         } else {
             var target = a.getAttribute('target') || 'self';
             // target blank ? new tab, do focus.
             target == '_blank'
                 ? this.openInNewTab(request, true)
-                : this.tabs[this.focusedTabId].goTo(request);
+                : this.$refs.tabs[this.focusedTabId].goTo(request);
         }
     }
 
     /**
+     * Event listener.
+     *
      * @private
      *
      * @param {SubmitEvent} evt
@@ -207,6 +472,7 @@ class TabManager extends HTMLElement
             form.method != 'get' || 
             request.matchesHtmlElement()            
         ) {
+            // Nothing to do, stop here.
             return;
         }
 
@@ -221,197 +487,85 @@ class TabManager extends HTMLElement
             // target blank ? new tab, do focus.
             target == '_blank'
                 ? this.openInNewTab(request, true)
-                : this.tabs[this.focusedTabId].goTo(request);
+                : this.$refs.tabs[this.focusedTabId].goTo(request);
         }
     }
 
     openInNewTab(request, focus = false) 
     {
         var tabId = this.generateNewTabId();
-        var tab = this.createTab(tabId, request.meta.title || tabId, focus);
+        var tab   = this.createTab(tabId, focus);
         tab.goTo(request);
 
         return tab;
     }
 
-    generateNewTabId() 
-    {
-        var id;
-
-        do {
-            id = 'tab-' + Math.floor(Math.random() * 1000);
-        } while(this.tabs[id]);
-
-        return id;
-    }
-
-    onTabRequest(evt) 
-    {
-        var tabId = this.getTabIdForTabPanel(evt.target);
-        var request = evt.detail;
-
-        this.links[tabId].setLabel(request.meta.title || tabId);
-        this.updated();
-    }
-
-    getTabIdForTabPanel(tabPanel) 
-    {
-        for (var tabId in this.tabs) {
-            if (this.tabs[tabId] == tabPanel) {
-                return tabId;
-            }
-        }
-
-        return null;
-    }
-
-    backwards() 
-    {
-        this.tabs[ this.focusedTabId ].backwards();
-    }
-
-    forwards() 
-    {
-        this.tabs[ this.focusedTabId ].forwards();
-    }
-
-    focusTab(tabId) 
-    {
-        this.focusedTabId = tabId;
-
-        for (var tId in this.tabs) {
-            if (tId == tabId) {
-                this.tabs[tId].classList.add('focused');
-                this.links[tId].classList.add('focused');
-            } else {
-                this.tabs[tId].classList.remove('focused');
-                this.links[tId].classList.remove('focused');
-            }
-        }
-    }
-
-    createTab(tabId, label = null, focus = true) 
-    {
-        var newTab = new TabPanel();
-        this.setTab(tabId, newTab, label);
-        if (focus) {
-            this.focusTab(tabId);
-        }
-
-        return newTab;
-    }
-
     /**
-     * Attatches a tab.
+     * Attatches the specified tab.
      *
-     * @param {string} tabId 
-     * @param {TabPanel} tabPanel
-     * @param {string|null} label
-     */
-    setTab(tabId, tabPanel, label) 
-    {
-        if (this.tabs[tabId]) {
-            throw `Tab {tabId} is already set`;
-        }
-
-        tabPanel.setRouteCollection(this.routeCollection);
-
-        var button = this.createTabButton(tabId, label || tabId);
-
-        this.tabs[tabId]  = tabPanel;
-        this.links[tabId] = button;
-
-        if (this.rendered) {
-            this.attachTab(tabId);
-        }
-    }
-
-    /**
-     * Remove tab.
-     *
-     * @param {string} tabId
-     *
-     * @return {TabPanel|null} 
-     */
-    removeTab(tabId) 
-    {
-        var tabPanel;
-
-        if (!this.tabs[tabId]) {
-            return null;
-        }
-
-        tabPanel = this.tabs[tabId];
-
-        if (this.rendered) {
-            this.detachTab(tabId);
-        }
-
-        return tabPanel;
-    }
-
-    /**
      * @private
      *
-     * @param {string} tabId 
+     * @param {string} tabId
+     *   The tab id.
+     *
+     * @return {TabPanel}
+     *   The attached tab.
      */
     attachTab(tabId) 
     {
-        var tab    = this.tabs[tabId];
-        var button = this.links[tabId];
+        var tab = this.$refs.tabs[tabId];
 
-        this.$refs.tabLinks.append( button );
-        this.$refs.tabPanes.append( tab );
+        this.$refs.tabPanels.append( tab );
 
         this.tabCount++;
+
+        return tab;
     }
 
     /**
+     * Removes the specified tab.
+     *
      * @private
      *
      * @param {string} tabId 
+     *   The tab id.
+     *
+     * @return {TabPanel}
+     *   The detatched tab.
      */
     detachTab(tabId) 
-    {
-        this.links[tabId].remove();
-        delete this.links[tabId];
-        
-        this.tabs[tabId].remove();
-        delete this.tabs[tabId];
-
+    {        
+        var tab = this.$refs.tabs[tabId];
+        tab.remove();
+        delete this.$refs.tabs[tabId];
         this.tabCount--;
+
+        return tab;
     }
 
     /**
+     * Short cut to fire custom events.
+     *
      * @private
      *
-     * @param {string} tabId
-     * @param {string} title
-     *
-     * @return {TabLink}
+     * @param {String} eventName
+     *   Event name.
+     * @param {Bool} bubbles
+     *   Should the event bubble up the dom tree ?
+     * @param {Object} detail
+     *   Detail object.
      */
-    createTabButton(tabId, title) 
+    fireEvent(eventName, bubbles = true, detail = {})
     {
-        var button = new TabLink;
-        button.setTabId(tabId);
-        button.setLabel(title);
+        var options = {
+            bubbles: bubbles,
+            detail: detail
+        };
 
-        button.addEventListener('tabbed-router:tab-link:clicked', (evt) => 
-        {
-            this.focusTab( evt.target.tabId );
-        });
-
-        return button;
-    }
-
-    /**
-     * @private
-     */
-    updated()
-    {
-        var event = new CustomEvent('tabbed-router:updated', {bubbles: true});
+        var event = new CustomEvent(eventName, options);
         this.dispatchEvent(event);
     }
+
 }
 
 export default TabManager;

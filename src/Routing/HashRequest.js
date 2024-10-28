@@ -1,11 +1,11 @@
 /**
- * Hash requests 
+ * Hash requests are created out of an URL's hash.
  */
 class HashRequest 
 {
     /**
      * @param {string} path
-     *   Path of an URL.
+     *   Path part of the hash.
      * @param {string|URLSearchParams} queryParams
      *   Query parameters.
      * @param {Object} attributes 
@@ -23,9 +23,13 @@ class HashRequest
     }
 
     /**
+     * Sets atrributes ( capture groups taken from the path ).
+     *
      * @param {Object} attributes 
+     *   The attributes.
      *
      * @return {HashRequest}
+     *   Returns itself.
      */
     setAttributes(attributes) 
     {
@@ -34,8 +38,15 @@ class HashRequest
     }
 
     /**
-     * @param {string} attrName 
-     * @param {mixed} value 
+     * Sets a single attribute.
+     *
+     * @param {String} attrName
+     *   The name of the attribute.
+     * @param {mixed} value
+     *   The value of the attribute.
+     *
+     * @return {HashRequest}
+     *   Returns itself.
      */
     setAttribute(attrName, value) 
     {
@@ -46,12 +57,12 @@ class HashRequest
     /**
      * Returns the specified attribute.
      *
-     * @param {string} attrName
+     * @param {String} attrName
      *   The attribute name.
      * @param {mix} defaultValue 
      *   Default value in case attrName is unset.
      *
-     * @return {string|null}
+     * @return {String|null}
      *   The value of the attribute.
      */
     getAttribute(attrName, defaultValue = null) 
@@ -60,11 +71,14 @@ class HashRequest
     }
 
     /**
+     * Checks if the path ( hash ) mathes the id of a dom element.
+     *
      * Not all hashes are intended for routing.
      * 
-     * @return {bool}
+     * @return {Bool}
+     *   If it matches or not.
      */
-    matchesHtmlElement() 
+    matchesHtmlElement()
     {
         var selector = this.path.replace(/^\//, '#');
 
@@ -84,9 +98,11 @@ class HashRequest
     /**
      * Creates a HashRequest based on an anchor's href.
      *
-     * @param {HTMLAnchorElement} a
+     * @param {HTMLAnchorElement}
+     *   Anchor element.
      *
-     * @return {HashRequest|null} 
+     * @return {HashRequest|null}
+     *   The generated request.
      */
     static createFromAnchor(a) 
     {
@@ -108,8 +124,10 @@ class HashRequest
      * Creates a HashRequest based on a form's action and input elements.
      *
      * @param {HTMLFormElement} form
+     *   The form element.
      *
      * @return {HashRequest|null} 
+     *   The generated request.
      */
     static createFromForm(form) 
     {

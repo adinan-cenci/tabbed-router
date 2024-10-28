@@ -8,5 +8,20 @@
     <script src="example.js"></script>
 </head>
 <body>
+    <div id="wrapper">
+        <h2>From outside</h2>
+        <p>
+            Links from outside the manager also work, as you can see by clicking on <a href="#second-example:1">this</a> link.
+        </p>
+
+        <h2>Not included</h2>
+        <p>
+            But not everything needs to be a link to a tab, regular anchors still do work, for example <a href="#actualThing">this one</a>.</p>
+        </p>      
+
+        <div id="actualThing">
+            See ?
+        </div>
+    </div>
 </body>
 </html>
