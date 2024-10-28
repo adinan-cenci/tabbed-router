@@ -1,4 +1,4 @@
-import HashRequest from './HashRequest';
+import HashRequest from '../Routing/HashRequest';
 import TabLink     from './TabLink';
 import TabPanel    from './TabPanel';
 
@@ -52,12 +52,12 @@ class TabManager extends HTMLElement
             this.attachTab(tabId);
         }
 
-        document.addEventListener('click', this.onAnchorClicked.bind(this));
-        document.addEventListener('submit', this.onFormSubmitted.bind(this));
+        document.addEventListener('click',   this.onAnchorClicked.bind(this));
+        document.addEventListener('submit',  this.onFormSubmitted.bind(this));
         document.addEventListener('keydown', this.onKeyDown.bind(this));
-        document.addEventListener('keyup', this.onKeyUp.bind(this));
+        document.addEventListener('keyup',   this.onKeyUp.bind(this));
 
-        this.addEventListener('tabbed-router:tab-panel:request-made', this.onTabRequest.bind(this));
+        this.addEventListener('tabbed-router:tab-panel:request-made',   this.onTabRequest.bind(this));
         this.addEventListener('tabbed-router:tab-link:request-closing', this.onRequestToCloseTab.bind(this));
     }
 

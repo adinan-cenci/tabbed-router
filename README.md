@@ -1,5 +1,5 @@
 # Tabbed router
-A little tabbed router I mad for my own use.
+A little tabbed router I made for my own use.
 
 ```js
 import   TabManager        from 'tabbed-router';

@@ -1,16 +1,20 @@
-import HashRequest from './HashRequest';
+import HashRequest from '../Routing/HashRequest';
 
 class TabPanel extends HTMLElement 
 {
     constructor() 
     {
         super();
-        this.history      = [];
-        this.historyIndex = -1;
-        this.ctrlKey      = false;
+        // Request history.
+        this.history         = [];
+        this.historyIndex    = -1;
+        this.routeCollection = null;
+        this.ctrlKey         = false;
     }
 
     /**
+     * Sets the route collection.
+     *
      * @param {RouteCollection} routeCollection 
      */
     setRouteCollection(routeCollection) 
@@ -18,13 +22,13 @@ class TabPanel extends HTMLElement
         this.routeCollection = routeCollection;
     }
 
-    connectedCallback() 
+    connectedCallback()
     {
         this.classList.add('tabbed-router__tab-panel');
-        this.addEventListener('click', this.onAnchorClicked.bind(this));
-        this.addEventListener('submit', this.onFormSubmitted.bind(this));
+        this.addEventListener('click',   this.onAnchorClicked.bind(this));
+        this.addEventListener('submit',  this.onFormSubmitted.bind(this));
         this.addEventListener('keydown', this.onKeyDown.bind(this));
-        this.addEventListener('keyup', this.onKeyUp.bind(this));
+        this.addEventListener('keyup',   this.onKeyUp.bind(this));
     }
 
     onKeyDown(evt) 
@@ -38,6 +42,8 @@ class TabPanel extends HTMLElement
     }
 
     /**
+     * Event listener, called when anchors are clicked.
+     *
      * @private
      *
      * @param {PointerEvent} evt
@@ -50,7 +56,8 @@ class TabPanel extends HTMLElement
             return;
         }
 
-        if (evt.ctrlKey || a.getAttribute('target') == '_blank') {
+        var openInNewTab = evt.ctrlKey || a.getAttribute('target') == '_blank';
+        if (openInNewTab) {
             // Let the tabmanager handle it.
             return;
         }
@@ -62,6 +69,7 @@ class TabPanel extends HTMLElement
             request == false ||
             request.matchesHtmlElement()
         ) {
+            // Nothing to do, let the tabmanager handle it.
             return;
         }
 
@@ -72,6 +80,8 @@ class TabPanel extends HTMLElement
     }
 
     /**
+     * Event listener, called when anchors are clicked.
+     *
      * @private
      *
      * @param {SubmitEvent} evt
@@ -80,10 +90,8 @@ class TabPanel extends HTMLElement
     {
         var form = evt.target;
 
-        if (
-            this.ctrlKey || 
-            form.getAttribute('target') == '_blank'
-        ) {
+        var openInNewTab = this.ctrlKey || form.getAttribute('target') == '_blank';
+        if (openInNewTab) {
             // Let the tabmanager handle it.
             return;
         }
@@ -96,6 +104,7 @@ class TabPanel extends HTMLElement
             form.method != 'get' || 
             request.matchesHtmlElement()            
         ) {
+            // Nothing to do, let the tabmanager handle it.
             return;
         }
 
@@ -136,7 +145,7 @@ class TabPanel extends HTMLElement
      *
      * Pushes request into the history.
      *
-     * @param {HashRequest} request 
+     * @param {HashRequest} request
      */
     goTo(request) 
     {
@@ -147,9 +156,12 @@ class TabPanel extends HTMLElement
     }
 
     /**
+     * Finds a matching route and appends the returned element.
+     *
      * @private
      *
-     * @param {HashRequest} request 
+     * @param {HashRequest} request
+     *   The request.
      */
     request(request) 
     {
@@ -224,14 +236,19 @@ class TabPanel extends HTMLElement
     }
 
     /**
-     * Returns the first anchor it finds in the element's tree.
+     * Returns the first parent element that is an anchor.
+     *
+     * It iterates through the parentNode attributes until it finds an anchor.
      *
      * @param {HTMLElement} element
+     *   An element inside the panel.
      * 
      * @returns {HTMLAnchorElement|null}
+     *   The anchor element, null if there is none.
      */
-    static getAnchor(element) 
+    static getAnchor(element)
     {
+        // Is itself the anchor.
         if (element instanceof HTMLAnchorElement) {
             return element;
         }

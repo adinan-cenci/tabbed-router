@@ -9,8 +9,8 @@ class RouteCollection
     }
 
     /**
-     * @param {Route} route 
-     * @param {HashRequest} request 
+     * @param {Route} route
+     * @param {HashRequest} request
      * 
      * @return {HTMLElement}
      */
@@ -20,14 +20,18 @@ class RouteCollection
     }
 
     /**
-     * @param {HashRequest} request 
+     * Returns the first route that matches the request.
+     *
+     * @param {HashRequest} request
+     *   The request.
      * 
      * @return {Route|null}
+     *   The matching route, null if none matches.
      */
     getMatchingRoute(request) 
     {
         for (var route of this.routes) {
-            if (route.doesItMatcheRequest(request)) {
+            if (route.doesItMatchTheRequest(request)) {
                 return route;
             }
         }
@@ -39,8 +43,10 @@ class RouteCollection
      * Adds a new route to the collection.
      *
      * @param {Route} route
+     *   The route to be added.
      * 
      * @return {RouteCollection}
+     *   Returns Itself to allow for method chaining.
      */
     addRoute(route) 
     {
@@ -49,12 +55,16 @@ class RouteCollection
     }
 
     /**
-     * Creates and adds a new route.
+     * Creates a new route and imediately adds it.
      *
-     * @param {RegExp} pattern 
+     * @param {RegExp|Array} pattern 
+     *   Regex expression(s) to match against a request's path.
      * @param {callable} callback
+     *   Either the name of an HTML tag or a function that returns an HTML
+     *   element.
      * 
      * @return {RouteCollection}
+     *   Returns Itself to allow for method chaining.
      */
     createRoute(pattern, callback) 
     {

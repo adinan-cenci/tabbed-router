@@ -1,8 +1,8 @@
-import RouteCollection from './src/RouteCollection';
-import HashRequest from './src/HashRequest';
-import TabManager from './src/TabManager';
-import TabPanel from './src/TabPanel';
-import TabLink from './src/TabLink';
+import RouteCollection from './src/Routing/RouteCollection';
+import HashRequest from './src/Routing/HashRequest';
+import TabManager from './src/Elements/TabManager';
+import TabPanel from './src/Elements/TabPanel';
+import TabLink from './src/Elements/TabLink';
 
 customElements.define('tab-manager', TabManager);
 customElements.define('tab-panel', TabPanel);

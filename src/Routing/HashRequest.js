@@ -1,11 +1,16 @@
-
+/**
+ * Hash requests 
+ */
 class HashRequest 
 {
     /**
      * @param {string} path
-     * @param {string|URLSearchParams} queryParams 
+     *   Path of an URL.
+     * @param {string|URLSearchParams} queryParams
+     *   Query parameters.
      * @param {Object} attributes 
-     *   Arbitrary values.
+     *   Regex capture matches.
+     * @param {Object} meta
      */
     constructor(path, queryParams, attributes = {}, meta = {}) 
     {
@@ -39,11 +44,15 @@ class HashRequest
     }
 
     /**
-     * 
+     * Returns the specified attribute.
+     *
      * @param {string} attrName
+     *   The attribute name.
      * @param {mix} defaultValue 
+     *   Default value in case attrName is unset.
      *
      * @return {string|null}
+     *   The value of the attribute.
      */
     getAttribute(attrName, defaultValue = null) 
     {
