@@ -51,6 +51,9 @@ class Route
         if (typeof this.callback == 'string') {
 
             element = document.createElement(this.callback);
+            if (element.setHashRequest) {
+                element.setHashRequest(request);
+            }
 
         } else if (typeof this.callback == 'function') {
 

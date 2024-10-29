@@ -87,9 +87,14 @@ class TabPanel extends HTMLElement
         if (this.children.length && this.children[0].getTitle) {
             return this.children[0].getTitle();
         }
+
+        if (!this.history.length) {
+            return 'New tab';
+        }
         
-        if (this.history.length && this.history[ this.historyIndex ].meta.title) {
-            return this.history[ this.historyIndex ].meta.title;
+        var present = this.history[ this.historyIndex ] || null;
+        if (present && present.meta && present.meta.title) {
+            return present.meta.title;
         }
 
         return 'New tab';
