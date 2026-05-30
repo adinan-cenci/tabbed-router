@@ -1,19 +1,18 @@
 const gulp    = require('gulp');
 const rename  = require('gulp-rename');
 const webpack = require('webpack-stream');
-const sass    = require('gulp-sass')(require('sass'));
 
 async function buildJs() 
 {
     return gulp.src('./example.js')
 
     .pipe(webpack({
-        mode: 'production',
+        mode: 'development',
     }))
 
     .pipe(rename('example.js'))
 
-    .pipe(gulp.dest('./example/'));
+    .pipe(gulp.dest('./examples/'));
 }
 
 exports.buildJs  = buildJs;

@@ -4,7 +4,8 @@
     "description": "tabbed router",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "compile": "./node_modules/gulp/bin/gulp.js"
     },
     "author": "Adinan Cenci",
     "license": "ISC",

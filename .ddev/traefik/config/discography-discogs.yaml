@@ -1,0 +1,98 @@
+#ddev-generated
+# If you remove the ddev-generated line above you
+# are responsible for maintaining this file. DDEV will not then
+# update it, for example if you add `additional_hostnames`, etc.
+
+http:
+  routers:
+    discography-discogs-web-80-http:
+      entrypoints:
+        - http-80
+      rule: HostRegexp(`^discography-discogs\.ddev\.site$`)
+      
+      service: "discography-discogs-web-80"
+      tls: false
+      # middlewares:
+      #   - "discography-discogs-redirectHttps"
+    discography-discogs-web-8025-http:
+      entrypoints:
+        - http-8025
+      rule: HostRegexp(`^discography-discogs\.ddev\.site$`)
+      
+      service: "discography-discogs-web-8025"
+      tls: false
+      # middlewares:
+      #   - "discography-discogs-redirectHttps"
+    discography-discogs-xhgui-80-http:
+      entrypoints:
+        - http-8143
+      rule: HostRegexp(`^discography-discogs\.ddev\.site$`)
+      
+      service: "discography-discogs-xhgui-80"
+      tls: false
+      # middlewares:
+      #   - "discography-discogs-redirectHttps"
+    
+    
+    
+    discography-discogs-web-80-https:
+      entrypoints:
+        - http-443
+      rule: HostRegexp(`^discography-discogs\.ddev\.site$`)
+      
+      service: "discography-discogs-web-80"
+      
+      tls: true
+      
+    discography-discogs-web-8025-https:
+      entrypoints:
+        - http-8026
+      rule: HostRegexp(`^discography-discogs\.ddev\.site$`)
+      
+      service: "discography-discogs-web-8025"
+      
+      tls: true
+      
+    
+    discography-discogs-xhgui-80-https:
+      entrypoints:
+        - http-8142
+      rule: HostRegexp(`^discography-discogs\.ddev\.site$`)
+      
+      service: "discography-discogs-xhgui-80"
+      
+      tls: true
+      
+    
+
+  middlewares:
+    discography-discogs-redirectHttps:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+  services:
+    discography-discogs-web-80:
+      loadbalancer:
+        servers:
+          - url: http://ddev-discography-discogs-web:80
+        
+    discography-discogs-web-8025:
+      loadbalancer:
+        servers:
+          - url: http://ddev-discography-discogs-web:8025
+        
+    
+    
+    discography-discogs-xhgui-80:
+      loadbalancer:
+        servers:
+          - url: http://ddev-discography-discogs-xhgui:80
+        
+    
+    
+
+tls:
+  certificates:
+    - certFile: /mnt/ddev-global-cache/traefik/certs/discography-discogs.crt
+      keyFile: /mnt/ddev-global-cache/traefik/certs/discography-discogs.key

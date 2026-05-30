@@ -1,3 +1,8 @@
+/**
+ * Represents a tab in the tab bar.
+ *
+ * @class
+ */
 class TabButton extends HTMLElement 
 {
     constructor() 
@@ -5,24 +10,32 @@ class TabButton extends HTMLElement
         super();
 
         /**
+         * @protected
+         *
          * @var {Object}
          *   Relational object to track dom elements.
          */
         this.$refs = {};
 
         /**
+         * @protected
+         *
          * @var {String}
-         *   The text to be displayed.
+         *   Human-readable text to be displayed in the button.
          */
         this.label = '';
 
         /**
+         * @protected
+         *
          * @var {String}
          *   This panel unique id.
          */
         this.tabId = '';
 
         /**
+         * @protected
+         *
          * @var {Bool}
          *   Indicates if the tab has been rendered already.
          */
@@ -30,10 +43,10 @@ class TabButton extends HTMLElement
     }
 
     /**
-     * Sets the panel unique id.
+     * Sets the panel lable.
      *
-     * @param {String} tabId
-     *   Id.
+     * @param {String} label
+     *   Human readable label.
      *
      * @return {TabButton}
      *   Returns itself.
@@ -49,7 +62,9 @@ class TabButton extends HTMLElement
     }
 
     /**
-     * Focus.
+     * Focus the tab.
+     *
+     * Visualy.
      *
      * @return {TabButton}
      */
@@ -60,7 +75,9 @@ class TabButton extends HTMLElement
     }
 
     /**
-     * Unfocus.
+     * Unfocus the tab.
+     *
+     * Visualy.
      *
      * @return {TabButton}
      */
@@ -88,20 +105,22 @@ class TabButton extends HTMLElement
     /**
      * Callback of the Custom elements API.
      *
-     * @private
+     * @protected
      */
     connectedCallback() 
     {
-        if (!this.rendered) {
-            this.render();
-            this.rendered = true;
+        if (this.rendered) {
+            return;
         }
+
+        this.render();
+        this.rendered = true;
     }
 
     /**
      * Builds up the element and set up event listeners.
      *
-     * @private
+     * @protected
      */
     render() 
     {
@@ -122,23 +141,33 @@ class TabButton extends HTMLElement
     /**
      * Event listener.
      *
-     * @private
+     * Called when the tab is clicked.
+     *
+     * @protected
+     *
+     * @param {PointerEvent}
+     *   The click event.
      */
-    onClick() 
+    onClick(evt) 
     {
         var options = {
             bubbles: true,
             detail: this.tabId
         };
 
-        var event = new CustomEvent('tabbed-router:request-focus', options);
+        var event = new CustomEvent('tabbed-router:request-focus-on-tab', options);
         this.dispatchEvent(event);
     }
 
     /**
      * Event listener.
      *
-     * @private
+     * Called when the close button is clicked.
+     *
+     * @protected
+     *
+     * @param {PointerEvent}
+     *   The click event.
      */
     onCloseBtnClicked(evt) 
     {
@@ -150,7 +179,7 @@ class TabButton extends HTMLElement
             detail: this.tabId
         };
 
-        var event = new CustomEvent('tabbed-router:request-closing', options);
+        var event = new CustomEvent('tabbed-router:request-closing-of-tab', options);
         this.dispatchEvent(event);
     }
 }

@@ -1,5 +1,8 @@
 import HashRequest from '../Routing/HashRequest';
 
+/**
+ * Represents an actual tab, to present content to the user.
+ */
 class TabPanel extends HTMLElement 
 {
     constructor() 
@@ -191,7 +194,7 @@ class TabPanel extends HTMLElement
     /**
      * Callback of the Custom elements API.
      *
-     * @private
+     * @protected
      */
     connectedCallback()
     {
@@ -204,7 +207,7 @@ class TabPanel extends HTMLElement
     /**
      * Builds up the element and set up event listeners.
      *
-     * @private
+     * @protected
      */
     render()
     {
@@ -228,7 +231,7 @@ class TabPanel extends HTMLElement
     }
 
     /**
-     * @private
+     * @protected
      */
     observer()
     {
@@ -238,7 +241,9 @@ class TabPanel extends HTMLElement
     /**
      * Fires an update event.
      *
-     * @private
+     * The contents of the tab have been updated.
+     *
+     * @protected
      *
      * @param {HashRequest|null} request
      *   Request that has updated the panel.
@@ -253,14 +258,14 @@ class TabPanel extends HTMLElement
             }
         }
 
-        var event = new CustomEvent('tabbed-router:tab-updated', options);
+        var event = new CustomEvent('tabbed-router:tab-panel-updated', options);
         this.dispatchEvent(event);
     }
 
     /**
      * Event listener.
      *
-     * @private
+     * @protected
      *
      * @param {KeyboardEvent} evt
      *   Keyboard event.
@@ -273,7 +278,7 @@ class TabPanel extends HTMLElement
     /**
      * Event listener.
      *
-     * @private
+     * @protected
      *
      * @param {KeyboardEvent} evt
      *   Keyboard event.
@@ -286,7 +291,7 @@ class TabPanel extends HTMLElement
     /**
      * Event listener, called when anchors are clicked.
      *
-     * @private
+     * @protected
      *
      * @param {PointerEvent} evt
      *   Event.
@@ -299,8 +304,8 @@ class TabPanel extends HTMLElement
             return;
         }
 
-        var openInNewTab = evt.ctrlKey || a.getAttribute('target') == '_blank';
-        if (openInNewTab) {
+        var openInNewTabPanel = evt.ctrlKey || a.getAttribute('target') == '_blank';
+        if (openInNewTabPanel) {
             // Let the tabmanager handle it.
             return;
         }
@@ -325,16 +330,17 @@ class TabPanel extends HTMLElement
     /**
      * Event listener, called when forms are submitted.
      *
-     * @private
+     * @protected
      *
      * @param {SubmitEvent} evt
+     *   Form submit event.
      */
     onFormSubmitted(evt) 
     {
         var form = evt.target;
 
-        var openInNewTab = this.ctrlKey || form.getAttribute('target') == '_blank';
-        if (openInNewTab) {
+        var openInNewTabPanel = this.ctrlKey || form.getAttribute('target') == '_blank';
+        if (openInNewTabPanel) {
             // Let the tabmanager handle it.
             return;
         }
@@ -360,7 +366,7 @@ class TabPanel extends HTMLElement
     /**
      * Finds a matching route and appends the returned element.
      *
-     * @private
+     * @protected
      *
      * @param {HashRequest} request
      *   The request.
@@ -386,7 +392,7 @@ class TabPanel extends HTMLElement
     /**
      * Clears the stage and appends element.
      *
-     * @private 
+     * @protected 
      */
     stageElement(element) 
     {
@@ -397,7 +403,7 @@ class TabPanel extends HTMLElement
     /**
      * Clears the tab of all its children.
      *
-     * @private
+     * @protected
      */
     clearStage() 
     {
@@ -410,7 +416,7 @@ class TabPanel extends HTMLElement
     /**
      * Appends element.
      *
-     * @private
+     * @protected
      *
      * @param {HTMLElement} element 
      */
@@ -422,7 +428,7 @@ class TabPanel extends HTMLElement
     /**
      * Generates generic element with an error message.
      * 
-     * @private
+     * @protected
      *
      * @param {HashRequest} request
      *   The request with no matchin routes.

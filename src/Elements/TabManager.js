@@ -10,17 +10,18 @@ class TabManager extends HTMLElement
         super();
 
         /**
-         * @private
+         * @protected
          *
          * @var {Object}
-         *   Relational object to track dom elements.
+         *   Relational object to track DOM elements.
          */
         this.$refs           = {
-            tabs: {}
+            tabPanelsWrapper: null,
+            tabPanels: {}
         };
 
         /**
-         * @private
+         * @protected
          *
          * @var {Int}
          *   The number of opened tabs.
@@ -28,7 +29,7 @@ class TabManager extends HTMLElement
         this.tabCount        = 0;
 
         /**
-         * @private
+         * @protected
          *
          * @var {Bool}
          *   Indicates if the panel has been rendered already.
@@ -36,7 +37,7 @@ class TabManager extends HTMLElement
         this.rendered        = false;
 
         /**
-         * @private
+         * @protected
          *
          * @var {String}
          *   The id of the currently focused tab.
@@ -44,7 +45,7 @@ class TabManager extends HTMLElement
         this.focusedTabId    = null;
 
         /**
-         * @private
+         * @protected
          *
          * @var {RouteCollection}
          *   The collection of routes.
@@ -52,7 +53,7 @@ class TabManager extends HTMLElement
         this.routeCollection = null;
 
         /**
-         * @private
+         * @protected
          *
          * @var {Bool}
          *   Indicates if the ctrl key is currently pressed.
@@ -63,7 +64,8 @@ class TabManager extends HTMLElement
     /**
      * Sets the route collection.
      *
-     * @param {RouteCollection} routeCollection 
+     * @param {RouteCollection} routeCollection
+     *   The route collection.
      *
      * @return {TabManager}
      *   Returns itself.
@@ -86,7 +88,7 @@ class TabManager extends HTMLElement
 
         do {
             id = 'tab-' + Math.floor(Math.random() * 1000);
-        } while(this.$refs.tabs[id]);
+        } while(this.$refs.tabPanels[id]);
 
         return id;
     }
@@ -98,7 +100,7 @@ class TabManager extends HTMLElement
     {
         var tab;
 
-        if (tab = this.getFocusedTab()) {
+        if (tab = this.getFocusedTabPanel()) {
             tab.backwards();
         }
     }
@@ -110,7 +112,7 @@ class TabManager extends HTMLElement
     {
         var tab;
 
-        if (tab = this.getFocusedTab()) {
+        if (tab = this.getFocusedTabPanel()) {
             tab.forwards();
         }
     }
@@ -124,28 +126,35 @@ class TabManager extends HTMLElement
      * @returns {TabPanel|null}
      *   The focused tab.
      */
-    focusTab(tabId) 
+    focusTabPanel(tabId) 
     {
-        var tab = this.getTab(tabId);
+        var tab = this.getTabPanel(tabId);
         if (!tab) {
             throw `Tab ${tabId} not found`;
         }
 
+        console.log('xxx');
+
+        // Already focused, do nothing.
+        if (this.focusedTabId == tabId) {
+            return;
+        }
+
         this.focusedTabId = tabId;
 
-        for (var tb of this.getTabs()) {
+        for (var tb of this.getTabPanels()) {
             tb.tabId == tabId
                 ? tb.focus()
                 : tb.unfocus()
         }
 
-        this.fireEvent('tabbed-router:tab-focused', true, {tab});
+        this.fireEvent('tabbed-router:tab-panel-focused', true, {tab});
 
         return tab;
     }
 
     /**
-     * Creates a new tab and adds it.
+     * Creates and adds a new tab panel.
      *
      * @param {String} tabId
      *   The tab id.
@@ -155,38 +164,38 @@ class TabManager extends HTMLElement
      * @returns {TabPanel}
      *   The newly created tab.
      */
-    createTab(tabId, focus = true) 
+    addNewTabPanel(tabId, focus = true) 
     {
         var newTab = new TabPanel();
-        this.setTab(tabId, newTab);
+        this.setTabPanel(tabId, newTab);
         if (focus) {
-            this.focusTab(tabId);
+            this.focusTabPanel(tabId);
         }
 
         return newTab;
     }
 
     /**
-     * Return all opened tabs.
+     * Return all opened tab panels.
      *
      * @returns {Array}
      */
-    getTabs()
+    getTabPanels()
     {
-        return Object.values(this.$refs.tabs);
+        return Object.values(this.$refs.tabPanels);
     }
 
     /**
-     * Returns the tab with the matching id.
+     * Returns the tab panel with the matching id.
      *
      * @param {String} tabId
      *
      * @returns {TabPanel|null}
      *   The matching tab.
      */
-    getTab(tabId)
+    getTabPanel(tabId)
     {
-        return this.$refs.tabs[ tabId ] || null;
+        return this.$refs.tabPanels[ tabId ] || null;
     }
 
     /**
@@ -194,9 +203,9 @@ class TabManager extends HTMLElement
      *
      * @returns {TabPanel|null}
      */
-    getFocusedTab()
+    getFocusedTabPanel()
     {
-        return this.$refs.tabs[ this.focusedTabId ] || null;
+        return this.$refs.tabPanels[ this.focusedTabId ] || null;
     }
 
     /**
@@ -208,24 +217,24 @@ class TabManager extends HTMLElement
      * @param {TabPanel} tabPanel
      *   The tab to be added.
      */
-    setTab(tabId, tabPanel) 
+    setTabPanel(tabId, tabPanel) 
     {
-        if (this.$refs.tabs[tabId]) {
+        if (this.$refs.tabPanels[tabId]) {
             throw `Tab {tabId} is already set`;
         }
 
         tabPanel.setRouteCollection(this.routeCollection);
         tabPanel.setTabId(tabId);
 
-        this.$refs.tabs[tabId] = tabPanel;
+        this.$refs.tabPanels[tabId] = tabPanel;
 
         if (this.rendered) {
-            this.attachTab(tabId);
+            this.attachTabPanel(tabId);
         }
     }
 
     /**
-     * Removes the specified tab.
+     * Removes the specified tab panel.
      *
      * @param {string} tabId
      *   The tab id.
@@ -233,21 +242,21 @@ class TabManager extends HTMLElement
      * @return {TabPanel|null}
      *   The removed tab.
      */
-    removeTab(tabId) 
+    removeTabPanel(tabId) 
     {
         var tabPanel;
 
-        if (!this.$refs.tabs[tabId]) {
+        if (!this.$refs.tabPanels[tabId]) {
             return null;
         }
 
-        tabPanel = this.$refs.tabs[tabId];
+        tabPanel = this.$refs.tabPanels[tabId];
 
         if (this.rendered) {
             this.detachTab(tabId);
         }
 
-        this.fireEvent('tabbed-router:tab-closed', true, {tab: tabPanel});
+        this.fireEvent('tabbed-router:tab-panel-closed', true, {tab: tabPanel});
 
         return tabPanel;
     }
@@ -255,7 +264,7 @@ class TabManager extends HTMLElement
     /**
      * Callback of the Custom elements API.
      *
-     * @private
+     * @protected
      */
     connectedCallback() 
     {
@@ -268,7 +277,7 @@ class TabManager extends HTMLElement
     /**
      * Builds up the element and set up event listeners.
      *
-     * @private
+     * @protected
      */
     render() 
     {
@@ -277,8 +286,8 @@ class TabManager extends HTMLElement
         this.subRenderHeader();
         this.subRenderPanes();        
 
-        for (var tabId in this.$refs.tabs) {
-            this.attachTab(tabId);
+        for (var tabId in this.$refs.tabPanels) {
+            this.attachTabPanel(tabId);
         }
 
         document.addEventListener('click',   this.onAnchorClicked.bind(this));
@@ -286,15 +295,15 @@ class TabManager extends HTMLElement
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         document.addEventListener('keyup',   this.onKeyUp.bind(this));
 
-        this.addEventListener('tabbed-router:request-closing', this.onRequestToCloseTab.bind(this));
-        this.addEventListener('tabbed-router:request-focus', this.onRequestFocus.bind(this));
+        this.addEventListener('tabbed-router:request-closing-of-tab', this.onRequestToCloseTab.bind(this));
+        this.addEventListener('tabbed-router:request-focus-on-tab', this.onRequestFocus.bind(this));
 
         this.addEventListener('tabbed-router:request-backwards', this.onRequestBackwards.bind(this));
         this.addEventListener('tabbed-router:request-forwards', this.onRequestForwards.bind(this));
     }
 
     /**
-     * @private
+     * @protected
      */
     subRenderHeader() 
     {
@@ -310,32 +319,32 @@ class TabManager extends HTMLElement
     }
 
     /**
-     * @private
+     * @protected
      */
     subRenderPanes() 
     {
-        this.$refs.tabPanels = document.createElement('div');
-        this.$refs.tabPanels.classList.add('tabbed-router__tab-manager__tab-panels');
-        this.append(this.$refs.tabPanels);
+        this.$refs.tabPanelsWrapper = document.createElement('div');
+        this.$refs.tabPanelsWrapper.classList.add('tabbed-router__tab-manager__tab-panels');
+        this.append(this.$refs.tabPanelsWrapper);
     }
 
     /**
      * Event listener.
      *
-     * @private
+     * @protected
      *
      * @param {Event} evt
      */
     onRequestFocus(evt)
     {
         var tabId = evt.detail;
-        this.focusTab(tabId);
+        this.focusTabPanel(tabId);
     }
 
     /**
      * Event listener.
      *
-     * @private
+     * @protected
      *
      * @param {Event} evt
      */
@@ -347,7 +356,7 @@ class TabManager extends HTMLElement
     /**
      * Event listener.
      *
-     * @private
+     * @protected
      *
      * @param {Event} evt
      */
@@ -359,7 +368,7 @@ class TabManager extends HTMLElement
     /**
      * Event listener.
      *
-     * @private
+     * @protected
      *
      * @param {Event} evt
      */
@@ -373,17 +382,17 @@ class TabManager extends HTMLElement
         var tabId = evt.detail;
 
         if (tabId == this.focusedTabId) {
-            var newFocus = (this.$refs.tabLinks.getButton(tabId).previousSibling || this.$refs.tabLinks.getButton(tabId).nextSibling).tabId;
-            this.focusTab(newFocus);
+            var newFocus = (this.$refs.tabLinks.getTabButton(tabId).previousSibling || this.$refs.tabLinks.getTabButton(tabId).nextSibling).tabId;
+            this.focusTabPanel(newFocus);
         }
 
-        this.removeTab(tabId);
+        this.removeTabPanel(tabId);
     }
 
     /**
      * Event listener.
      *
-     * @private
+     * @protected
      *
      * @param {KeyboardEvent} evt
      *   Keyboard event.
@@ -396,7 +405,7 @@ class TabManager extends HTMLElement
     /**
      * Event listener.
      *
-     * @private
+     * @protected
      *
      * @param {KeyboardEvent} evt
      *   Keyboard event.
@@ -409,9 +418,10 @@ class TabManager extends HTMLElement
     /**
      * Event listener.
      *
-     * @private
+     * @protected
      *
      * @param {PointerEvent} evt
+     *   The click event.
      */
     onAnchorClicked(evt) 
     {
@@ -439,22 +449,23 @@ class TabManager extends HTMLElement
 
         if (evt.ctrlKey) {
             // New tab, do not focus.
-            this.openInNewTab(request, false);
+            this.openInNewTabPanel(request, false);
         } else {
             var target = a.getAttribute('target') || 'self';
             // target blank ? new tab, do focus.
             target == '_blank'
-                ? this.openInNewTab(request, true)
-                : this.$refs.tabs[this.focusedTabId].goTo(request);
+                ? this.openInNewTabPanel(request, true)
+                : this.$refs.tabPanels[this.focusedTabId].goTo(request);
         }
     }
 
     /**
      * Event listener.
      *
-     * @private
+     * @protected
      *
      * @param {SubmitEvent} evt
+     *   Form submit event.
      */
     onFormSubmitted(evt) 
     {
@@ -481,20 +492,32 @@ class TabManager extends HTMLElement
 
         if (this.ctrlKey) {
             // Net tab, do not focus.
-            this.openInNewTab(request, false);
-        } else {
-            var target = form.getAttribute('target') || 'self';
-            // target blank ? new tab, do focus.
-            target == '_blank'
-                ? this.openInNewTab(request, true)
-                : this.$refs.tabs[this.focusedTabId].goTo(request);
+            this.openInNewTabPanel(request, false);
+            return;
         }
+
+        var target = form.getAttribute('target') || 'self';
+        // target blank ? new tab, do focus.
+        target == '_blank'
+            ? this.openInNewTabPanel(request, true)
+            : this.$refs.tabPanels[this.focusedTabId].goTo(request);
     }
 
-    openInNewTab(request, focus = false) 
+    /**
+     * Open the request in a new tab.
+     *
+     * @param {HashRequest} request
+     *   Request object
+     * @param {Boolean} focus
+     *   Should the new tab be focused ?
+     *
+     * @returns {TabPanel}
+     *   The new tab pane.
+     */
+    openInNewTabPanel(request, focus = false) 
     {
         var tabId = this.generateNewTabId();
-        var tab   = this.createTab(tabId, focus);
+        var tab   = this.addNewTabPanel(tabId, focus);
         tab.goTo(request);
 
         return tab;
@@ -503,7 +526,7 @@ class TabManager extends HTMLElement
     /**
      * Attatches the specified tab.
      *
-     * @private
+     * @protected
      *
      * @param {string} tabId
      *   The tab id.
@@ -511,11 +534,11 @@ class TabManager extends HTMLElement
      * @return {TabPanel}
      *   The attached tab.
      */
-    attachTab(tabId) 
+    attachTabPanel(tabId) 
     {
-        var tab = this.$refs.tabs[tabId];
+        var tab = this.$refs.tabPanels[tabId];
 
-        this.$refs.tabPanels.append( tab );
+        this.$refs.tabPanelsWrapper.append( tab );
 
         this.tabCount++;
 
@@ -525,7 +548,7 @@ class TabManager extends HTMLElement
     /**
      * Removes the specified tab.
      *
-     * @private
+     * @protected
      *
      * @param {string} tabId 
      *   The tab id.
@@ -535,9 +558,9 @@ class TabManager extends HTMLElement
      */
     detachTab(tabId) 
     {        
-        var tab = this.$refs.tabs[tabId];
+        var tab = this.$refs.tabPanels[tabId];
         tab.remove();
-        delete this.$refs.tabs[tabId];
+        delete this.$refs.tabPanels[tabId];
         this.tabCount--;
 
         return tab;
@@ -546,7 +569,7 @@ class TabManager extends HTMLElement
     /**
      * Short cut to fire custom events.
      *
-     * @private
+     * @protected
      *
      * @param {String} eventName
      *   Event name.

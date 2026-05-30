@@ -1,19 +1,27 @@
+/**
+ * Controls for the tabs.
+ *
+ * Mainly the backward and forward buttons for the navigation history.
+ */
 class TabControls extends HTMLElement 
 {
+    /**
+     * Constructor.
+     */
     constructor() 
     {
         super();
 
         /**
-         * @private
+         * @protected
          *
          * @var {Object}
-         *   Relational object to track dom elements.
+         *   Relational object to track DOM elements.
          */
         this.$refs = {};
 
         /**
-         * @private
+         * @protected
          *
          * @var {Bool}
          *   Indicates if the panel has been rendered already.
@@ -24,7 +32,7 @@ class TabControls extends HTMLElement
     /**
      * Callback of the Custom elements API.
      *
-     * @private
+     * @protected
      */
     connectedCallback() 
     {
@@ -37,7 +45,7 @@ class TabControls extends HTMLElement
     /**
      * Builds up the element and set up event listeners.
      *
-     * @private
+     * @protected
      */
     render() 
     {
@@ -64,38 +72,44 @@ class TabControls extends HTMLElement
             this.dispatchEvent(event);
         });
 
-        this.parentNode.parentNode.addEventListener('tabbed-router:tab-focused', this.onTabFocused.bind(this));
-        this.parentNode.parentNode.addEventListener('tabbed-router:tab-updated', this.onTabUpdated.bind(this));
+        this.parentNode.parentNode.addEventListener('tabbed-router:tab-panel-focused', this.onTabPanelFocused.bind(this));
+        this.parentNode.parentNode.addEventListener('tabbed-router:tab-panel-updated', this.onTabPanelUpdated.bind(this));
     }
 
     /**
      * Event listener.
      *
-     * @private
+     * @protected
      *
      * @param {Event} evt
      */
-    onTabUpdated(evt)
+    onTabPanelUpdated(evt)
     {
-        this.onTabFocused(evt);
+        var tabPanel = evt.detail.tab;
+
+        if (this.parentNode.parentNode.focusedTabId != tabPanel.tabId) {
+            return;
+        }
+
+        this.onTabPanelFocused(evt);
     }
 
     /**
      * Event listener.
      *
-     * @private
+     * @protected
      *
      * @param {Event} evt
      */
-    onTabFocused(evt)
+    onTabPanelFocused(evt)
     {
-        var tab = evt.detail.tab;
+        var tabPanel = evt.detail.tab;
 
-        tab.canGoForwards()
+        tabPanel.canGoForwards()
             ? this.$refs.forwardButton.removeAttribute('disabled')
             : this.$refs.forwardButton.setAttribute('disabled', 'disabled');
 
-        tab.canGoBackwards()
+        tabPanel.canGoBackwards()
             ? this.$refs.backwardButton.removeAttribute('disabled')
             : this.$refs.backwardButton.setAttribute('disabled', 'disabled');
     }

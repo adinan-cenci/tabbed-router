@@ -104,11 +104,11 @@ form label + input {
                 margin: 0px;
             }
             .tabbed-router__tab-manager__backwards-button:before {
-                content: "←";
+                content: "◀";
             }
 
             .tabbed-router__tab-manager__forwards-button:before {
-                content: "→";
+                content: "►";
             }
 
         /*--------------------------*/

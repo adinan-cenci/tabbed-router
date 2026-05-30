@@ -3,6 +3,9 @@ import HashRequest from './HashRequest';
 
 class RouteCollection 
 {
+    /**
+     * Constructor.
+     */
     constructor() 
     {
         this.routes = [];

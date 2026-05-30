@@ -1,13 +1,21 @@
 import TabButton from './TabButton';
 
+/**
+ * @class
+ *
+ * A bar to group multiple tab buttons together.
+ */
 class TabsBar extends HTMLElement 
 {
-    constructor() 
+    /**
+     * Constructor.
+     */
+    constructor()
     {
         super();
 
         /**
-         * @private
+         * @protected
          *
          * @var {Int}
          *   The number of buttons.
@@ -15,17 +23,17 @@ class TabsBar extends HTMLElement
         this.buttonCount = 0;
 
         /**
-         * @private
+         * @protected
          *
          * @var {Object}
-         *   Relational object to track dom elements.
+         *   Relational object to track DOM elements.
          */
         this.$refs = {
             buttons: {}
         };
 
         /**
-         * @private
+         * @protected
          *
          * @var {Bool}
          *   Indicates if the panel has been rendered already.
@@ -36,9 +44,9 @@ class TabsBar extends HTMLElement
     /**
      * Callback of the Custom elements API.
      *
-     * @private
+     * @protected
      */
-    connectedCallback() 
+    connectedCallback()
     {
         if (!this.rendered) {
             this.render();
@@ -49,38 +57,68 @@ class TabsBar extends HTMLElement
     /**
      * Builds up the element and set up event listeners.
      *
-     * @private
+     * @protected
      */
-    render() 
+    render()
     {
         this.classList.add('tabbed-router__tab-manager__tabs-bar');
-        this.parentNode.parentNode.addEventListener('tabbed-router:tab-updated', this.onTabUpdated.bind(this));
-        this.parentNode.parentNode.addEventListener('tabbed-router:tab-focused', this.onTabFocused.bind(this));  
-        this.parentNode.parentNode.addEventListener('tabbed-router:tab-closed',  this.onTabClosed.bind(this));
+        this.parentNode.parentNode.addEventListener('tabbed-router:tab-panel-updated', this.onTabPanelUpdated.bind(this));
+        this.parentNode.parentNode.addEventListener('tabbed-router:tab-panel-focused', this.onTabPanelFocused.bind(this));  
+        this.parentNode.parentNode.addEventListener('tabbed-router:tab-panel-closed',  this.onTabPanelClosed.bind(this));
+    }
+
+    /**
+     * Creates and adds a new tab button.
+     *
+     * @protected
+     *
+     * @param {String} tabId
+     *   The tab id.
+     * @param {String} label
+     *   Human-readable text to be displayed in the button.
+     *
+     * @return {TabButton}
+     *   The newly created button.
+     */
+    addNewTabButton(tabId, label = 'new tab')
+    {
+        var button = this.createNewTabButton(tabId, label);
+        this.addTabButton(button);
+
+        return button;
+    }
+
+    /**
+     * Adds a tab button to the bar.
+     *
+     * @param {TabButton} button
+     *   The button to add.
+     */
+    addTabButton(button)
+    {
+        this.append(button);
+        this.$refs.buttons[button.tabId] = button;
+        this.buttonCount++;
     }
 
     /**
      * Creates a new button.
      *
-     * @private
+     * @protected
      *
      * @param {String} tabId
      *   The tab id.
      * @param {String} label
-     *   Text to be displayed in the button.
+     *   Human-readable text to be displayed in the button.
      *
      * @return {TabButton}
      *   The newly created button.
      */
-    createButton(tabId, label = 'new tab')
+    createNewTabButton(tabId, label = 'new tab')
     {
         var button = new TabButton();
         button.setTabId(tabId);
         button.setLabel(label);
-        this.append(button);
-
-        this.$refs.buttons[tabId] = button;
-        this.buttonCount++;
 
         return button;
     }
@@ -88,7 +126,7 @@ class TabsBar extends HTMLElement
     /**
      * Returns the button with the matching id.
      *
-     * @private
+     * @protected
      *
      * @param {String} tabId
      *   The tab id.
@@ -96,7 +134,7 @@ class TabsBar extends HTMLElement
      * @returns {TabButton|null}
      *   The matching button.
      */
-    getButton(tabId)
+    getTabButton(tabId)
     {
         return this.$refs.buttons[tabId] || null;
     }
@@ -104,19 +142,20 @@ class TabsBar extends HTMLElement
     /**
      * Return all the buttons.
      *
-     * @private
+     * @protected
      *
      * @returns {Array}
+     *   The buttons in the bar.
      */
-    getButtons()
+    getTabButtons()
     {
         return Object.values(this.$refs.buttons);
     }
 
     /**
-     * Focus the specified button.
+     * Focus the specified tab button.
      *
-     * @private
+     * @protected
      *
      * @param {String} tabId 
      *   The tab id.
@@ -124,14 +163,14 @@ class TabsBar extends HTMLElement
      * @returns {TabButton|null}
      *   The focused button.
      */
-    focusButton(tabId)
+    focusTabButton(tabId)
     {
-        var button = this.getButton(tabId);
+        var button = this.getTabButton(tabId);
         if (!button) {
             throw `Tab ${tabId} not found`;
         }
 
-        for (var tb of this.getButtons()) {
+        for (var tb of this.getTabButtons()) {
             tb.tabId == tabId
                 ? tb.focus()
                 : tb.unfocus();
@@ -143,24 +182,27 @@ class TabsBar extends HTMLElement
     /**
      * Event listener.
      *
-     * @private
+     * @protected
      *
      * @param {Event} evt
      */
-    onTabFocused(evt)
+    onTabPanelFocused(evt)
     {
         var tabId = evt.detail.tab.tabId;
-        this.focusButton(tabId);
+        this.focusTabButton(tabId);
     }
 
     /**
      * Event listener.
      *
-     * @private
+     * Reacts at panels being closed and removes the respective tab button.
+     *
+     * @protected
      *
      * @param {Event} evt
+     *   The tab close event.
      */
-    onTabClosed(evt)
+    onTabPanelClosed(evt)
     {
         var tabId = evt.detail.tab.tabId;
         this.$refs.buttons[tabId].remove();
@@ -171,25 +213,29 @@ class TabsBar extends HTMLElement
     /**
      * Event listener.
      *
-     * @private
+     * Reacts at panels being updated and reflect the changes on the respective 
+     * tab button.
+     *
+     * @protected
      *
      * @param {Event} evt
+     *   The panel update event.
      */
-    onTabUpdated(evt)
+    onTabPanelUpdated(evt)
     {
         var tab, tabId, button;
 
         tab   = evt.detail.tab;
         tabId = tab.tabId;
 
-        if (button = this.getButton(tabId)) {
+        if (button = this.getTabButton(tabId)) {
             button.setLabel(tab.getTitle());
         } else {
-            button = this.createButton(tabId, tab.getTitle());
+            button = this.addNewTabButton(tabId, tab.getTitle());
         }
 
         if (this.buttonCount == 1) {
-            this.focusButton(tabId);
+            this.focusTabButton(tabId);
         }
     }
 }

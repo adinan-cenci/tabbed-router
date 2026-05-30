@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () =>
     tabManager = new TabManager();
     tabManager.setRouteCollection(routeCollection);
 
-    mainTab = tabManager.createTab('main-tab', 'Main tab', true);
+    mainTab = tabManager.addNewTabPanel('main-tab', 'Main tab', true);
     document.getElementById('wrapper').prepend(tabManager);
 
     mainTab.access('#first-example');
