@@ -55,14 +55,10 @@ The router will react to anchors being clicked and forms being submitted.
 ```html
 <a href="#my-custom-route" title="foo bar">foo bar</a>
 
-<a href="#product:123" title="foo bar">my product</a>
+<a href="#product:123" data-tabbed-router-title="foo bar">my product</a>
 ```
 
 See a working example in the `example/` directory.
-
-
-## Todo
-- Add the ability to re-order the tabs.
 
 ## License
 MIT

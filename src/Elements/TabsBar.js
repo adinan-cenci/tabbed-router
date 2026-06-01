@@ -65,6 +65,12 @@ class TabsBar extends HTMLElement
         this.parentNode.parentNode.addEventListener('tabbed-router:tab-panel-updated', this.onTabPanelUpdated.bind(this));
         this.parentNode.parentNode.addEventListener('tabbed-router:tab-panel-focused', this.onTabPanelFocused.bind(this));  
         this.parentNode.parentNode.addEventListener('tabbed-router:tab-panel-closed',  this.onTabPanelClosed.bind(this));
+        this.parentNode.parentNode.addEventListener('tabbed-router:tab-panel-reordered',   this.onTabPanelReordered.bind(this));
+
+        this.addEventListener('dragstart', this.onDragStart.bind(this));
+        this.addEventListener('dragstop', this.onDragStop.bind(this));
+        this.addEventListener('dragover', this.onDragOver.bind(this));
+        this.addEventListener('drop', this.onDragDrop.bind(this));
     }
 
     /**
@@ -119,6 +125,7 @@ class TabsBar extends HTMLElement
         var button = new TabButton();
         button.setTabId(tabId);
         button.setLabel(label);
+        button.setAttribute('draggable', 'true');
 
         return button;
     }
@@ -237,6 +244,103 @@ class TabsBar extends HTMLElement
         if (this.buttonCount == 1) {
             this.focusTabButton(tabId);
         }
+    }
+
+    /**
+     * Event listener.
+     *
+     * Reacts to the start of elements being dragged.
+     *
+     * @protected
+     *
+     * @param {Event} evt
+     *   Drag start event.
+     */
+    onDragStart(evt)
+    {
+        if (evt.target.constructor.name == TabButton.name) {
+            this.dragged = evt.target;
+        }
+    }
+
+    /**
+     * Event listener.
+     *
+     * Reacts to the stop of elements being dragged.
+     *
+     * @protected
+     *
+     * @param {Event} evt
+     *   Drag stop event.
+     */
+    onDragStop(evt)
+    {
+        this.dragged = null;
+    }
+
+    /**
+     * Event listener.
+     *
+     * Reacts to elements being dropped over it.
+     *
+     * @protected
+     *
+     * @param {Event} evt
+     *   Drag event.
+     */
+    onDragOver(evt)
+    {
+        // Prevent default to allow the drop event to fire.
+        evt.preventDefault();
+    }
+
+    /**
+     * Event listener.
+     *
+     * Reacts to elements being dropped on it.
+     *
+     * @protected
+     *
+     * @param {Event} evt
+     *   Drop event.
+     */
+    onDragDrop(evt)
+    {
+        var droppedOn = evt.target;
+        if (droppedOn.constructor.name != TabButton.name) {
+            droppedOn = droppedOn.closest((new TabButton).tagName);
+        }
+
+        if (!this.dragged || !droppedOn) {
+            return;
+        }
+
+        if (this.dragged.index() == droppedOn.index()) {
+            return;
+        }
+
+        var options = {
+            bubbles: true,
+            detail: {
+                tabId: this.dragged.tabId,
+                from: this.dragged.index(),
+                to: droppedOn.index()
+            }
+        }
+
+        var event = new CustomEvent('tabbed-router:request-reorder-tab', options);
+        this.dispatchEvent(event);
+    }
+
+    onTabPanelReordered(evt)
+    {
+        const { tabId, from, to } = evt.detail;
+        const tabButton = this.getTabButton(tabId);
+        const child = this.children[to];
+
+        from > to
+            ? child.before(tabButton)
+            : child.after(tabButton);
     }
 }
 

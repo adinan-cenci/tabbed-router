@@ -4,12 +4,14 @@
 class HashRequest 
 {
     /**
+     * Constructor.
+     *
      * @param {string} path
-     * Path part of the hash.
+     *   Path part of the hash.
      * @param {string|URLSearchParams} queryParams
-     * Query parameters.
+     *   Query parameters.
      * @param {Object} attributes 
-     * Regex capture matches.
+     *   Regex capture matches.
      * @param {Object} meta
      */
     constructor(path, queryParams, attributes = {}, meta = {}) 
@@ -26,10 +28,10 @@ class HashRequest
      * Sets atrributes ( capture groups taken from the path ).
      *
      * @param {Object} attributes 
-     * The attributes.
+     *   The attributes.
      *
      * @return {HashRequest}
-     * Returns itself.
+     *   Returns itself.
      */
     setAttributes(attributes) 
     {
@@ -41,12 +43,12 @@ class HashRequest
      * Sets a single attribute.
      *
      * @param {String} attrName
-     * The name of the attribute.
+     *   The name of the attribute.
      * @param {mixed} value
-     * The value of the attribute.
+     *   The value of the attribute.
      *
      * @return {HashRequest}
-     * Returns itself.
+     *   Returns itself.
      */
     setAttribute(attrName, value) 
     {
@@ -58,12 +60,12 @@ class HashRequest
      * Returns the specified attribute.
      *
      * @param {String} attrName
-     * The attribute name.
+     *   The attribute name.
      * @param {mix} defaultValue 
-     * Default value in case attrName is unset.
+     *   Default value in case attrName is unset.
      *
      * @return {String|null}
-     * The value of the attribute.
+     *   The value of the attribute.
      */
     getAttribute(attrName, defaultValue = null) 
     {
@@ -76,7 +78,7 @@ class HashRequest
      * Not all hashes are intended for routing.
      * 
      * @return {Bool}
-     * If it matches or not.
+     *   If it matches or not.
      */
     matchesHtmlElement()
     {
@@ -101,15 +103,15 @@ class HashRequest
      * Based on the anchor's href attribute.
      *
      * @param {HTMLAnchorElement} anchor
-     * Anchor element.
+     *   Anchor element.
      *
      * @return {HashRequest|null}
-     * The generated request.
+     *   The generated request.
      */
     static createFromAnchor(anchor) 
     {
         var href  = anchor.getAttribute('href');
-        var title = anchor.getAttribute('title') || null;
+        var title = anchor.getAttribute('title') || anchor.getAttribute('data-tabbed-router-title') || null;
         
         var request = HashRequest.createFromUrl(href);
 
@@ -128,10 +130,10 @@ class HashRequest
      * Based on the form's action and input elements.
      *
      * @param {HTMLFormElement} form
-     * The form element.
+     *   The form element.
      *
      * @return {HashRequest|null} 
-     * The generated request.
+     *   The generated request.
      */
     static createFromForm(form) 
     {
@@ -169,8 +171,9 @@ class HashRequest
      * Based on the URL's hash.
      *
      * @param {string} urlString
-     *
-     * @return {HashRequest|null} 
+     *   URL string.
+     * @return {HashRequest|null}
+     *   Hash request.
      */
     static createFromUrl(urlString) 
     {
@@ -182,11 +185,12 @@ class HashRequest
     }
 
     /**
-     * Creates a HashRequest based on an url hash.
+     * Creates a HashRequest based off of a URL's hash.
      *
      * @param {string} hashString
-     *
-     * @return {HashRequest|null} 
+     *   Hash part of a URL.
+     * @return {HashRequest|null}
+     *   Hash request.
      */
     static createFromHash(hashString, host = window.location.host) 
     {

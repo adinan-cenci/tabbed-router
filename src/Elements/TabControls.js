@@ -79,6 +79,8 @@ class TabControls extends HTMLElement
     /**
      * Event listener.
      *
+     * Reacts to the panel being updated.
+     *
      * @protected
      *
      * @param {Event} evt
@@ -96,6 +98,8 @@ class TabControls extends HTMLElement
 
     /**
      * Event listener.
+     *
+     * Reacts to the panel being focused.
      *
      * @protected
      *

@@ -133,8 +133,6 @@ class TabManager extends HTMLElement
             throw `Tab ${tabId} not found`;
         }
 
-        console.log('xxx');
-
         // Already focused, do nothing.
         if (this.focusedTabId == tabId) {
             return;
@@ -242,7 +240,7 @@ class TabManager extends HTMLElement
      * @return {TabPanel|null}
      *   The removed tab.
      */
-    removeTabPanel(tabId) 
+    rereorderTabPanel(tabId) 
     {
         var tabPanel;
 
@@ -300,6 +298,7 @@ class TabManager extends HTMLElement
 
         this.addEventListener('tabbed-router:request-backwards', this.onRequestBackwards.bind(this));
         this.addEventListener('tabbed-router:request-forwards', this.onRequestForwards.bind(this));
+        this.addEventListener('tabbed-router:request-reorder-tab', this.onRequestReorderTab.bind(this));
     }
 
     /**
@@ -331,9 +330,12 @@ class TabManager extends HTMLElement
     /**
      * Event listener.
      *
+     * Reacts to a request to focus on a specific tab panel.
+     *
      * @protected
      *
      * @param {Event} evt
+     *   Focus event.
      */
     onRequestFocus(evt)
     {
@@ -344,9 +346,12 @@ class TabManager extends HTMLElement
     /**
      * Event listener.
      *
+     * Reacts to a request go backwards in the tab panel' navigation history.
+     *
      * @protected
      *
      * @param {Event} evt
+     *   Backwards event.
      */
     onRequestBackwards(evt)
     {
@@ -356,9 +361,12 @@ class TabManager extends HTMLElement
     /**
      * Event listener.
      *
+     * Reacts to a request go forwardss in the tab panel' navigation history.
+     *
      * @protected
      *
      * @param {Event} evt
+     *   Forward event.
      */
     onRequestForwards(evt)
     {
@@ -368,9 +376,53 @@ class TabManager extends HTMLElement
     /**
      * Event listener.
      *
+     * Reacts to a request to re-order tabs.
+     *
      * @protected
      *
      * @param {Event} evt
+     *   Reorder event.
+     */
+    onRequestReorderTab(evt)
+    {
+        var { tabId, from, to } = evt.detail;
+
+        this.reorderTabPanel(tabId, from, to);
+    }
+
+    /**
+     * Re-order tabs.
+     *
+     * @protected
+     *
+     * @param {string} tabId
+     *   To identify the tab to be moved.
+     * @param {Int} from
+     *   The tab's current position.
+     * @param {Int} to
+     *   The intended position.
+     */
+    reorderTabPanel(tabId, from, to)
+    {
+        const tabPanel = this.getTabPanel(tabId);        
+        const child = this.$refs.tabPanelsWrapper.children[to];
+
+        from > to
+            ? child.before(tabPanel)
+            : child.after(tabPanel);
+
+        this.fireEvent('tabbed-router:tab-panel-reordered', true, { tabId, from, to });
+    }
+
+    /**
+     * Event listener.
+     *
+     * Reacts to a request to close a specified tab.
+     *
+     * @protected
+     *
+     * @param {Event} evt
+     *   Event to close a tab.
      */
     onRequestToCloseTab(evt) 
     {
@@ -386,11 +438,13 @@ class TabManager extends HTMLElement
             this.focusTabPanel(newFocus);
         }
 
-        this.removeTabPanel(tabId);
+        this.rereorderTabPanel(tabId);
     }
 
     /**
      * Event listener.
+     *
+     * Reacts to a key being pressed.
      *
      * @protected
      *
@@ -405,6 +459,8 @@ class TabManager extends HTMLElement
     /**
      * Event listener.
      *
+     * Reacts to a key being released.
+     *
      * @protected
      *
      * @param {KeyboardEvent} evt
@@ -417,6 +473,8 @@ class TabManager extends HTMLElement
 
     /**
      * Event listener.
+     *
+     * Reacts to an anchor being clicked.
      *
      * @protected
      *
@@ -462,6 +520,8 @@ class TabManager extends HTMLElement
     /**
      * Event listener.
      *
+     * Reacts to a form being submitted.
+     *
      * @protected
      *
      * @param {SubmitEvent} evt
@@ -505,6 +565,8 @@ class TabManager extends HTMLElement
 
     /**
      * Open the request in a new tab.
+     *
+     * @protected
      *
      * @param {HashRequest} request
      *   Request object
@@ -567,7 +629,7 @@ class TabManager extends HTMLElement
     }
 
     /**
-     * Short cut to fire custom events.
+     * Short hand to fire custom events.
      *
      * @protected
      *

@@ -5,6 +5,9 @@
  */
 class TabButton extends HTMLElement 
 {
+    /**
+     * Constructor.
+     */
     constructor() 
     {
         super();
@@ -43,7 +46,19 @@ class TabButton extends HTMLElement
     }
 
     /**
-     * Sets the panel lable.
+     * Returns its position among the other buttons in the tab bar.
+     *
+     * @returns {Int}
+     *   The position within the tabs bar.
+     */
+    index()
+    {
+        var array = Array.from(this.parentElement.childNodes);
+        return array.indexOf(this);
+    }
+
+    /**
+     * Sets the tab button lable.
      *
      * @param {String} label
      *   Human readable label.
@@ -51,7 +66,7 @@ class TabButton extends HTMLElement
      * @return {TabButton}
      *   Returns itself.
      */
-    setLabel(label) 
+    setLabel(label)
     {
         this.label = label;
         if (this.rendered) {
@@ -62,11 +77,12 @@ class TabButton extends HTMLElement
     }
 
     /**
-     * Focus the tab.
+     * Focus the tab button.
      *
      * Visualy.
      *
      * @return {TabButton}
+     *   Returns itself.
      */
     focus()
     {
@@ -75,11 +91,12 @@ class TabButton extends HTMLElement
     }
 
     /**
-     * Unfocus the tab.
+     * Unfocus the tab button.
      *
      * Visualy.
      *
      * @return {TabButton}
+     *   Returns itself.
      */
     unfocus()
     {
