@@ -13,6 +13,7 @@ class HashRequest
      * @param {Object} attributes 
      *   Regex capture matches.
      * @param {Object} meta
+     *   Adjacent data.
      */
     constructor(path, queryParams, attributes = {}, meta = {}) 
     {
@@ -111,7 +112,7 @@ class HashRequest
     static createFromAnchor(anchor) 
     {
         var href  = anchor.getAttribute('href');
-        var title = anchor.getAttribute('title') || anchor.getAttribute('data-tabbed-router-title') || null;
+        var title = anchor.getAttribute('data-tabbed-router-title') || anchor.getAttribute('title') || null;
         
         var request = HashRequest.createFromUrl(href);
 

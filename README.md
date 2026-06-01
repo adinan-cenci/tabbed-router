@@ -28,13 +28,12 @@ customElements.define('tab-controls', TabControls);
 ```js 
 const routeCollection = new RouteCollection();
 
-// It support elements:
-customElements.define('my-custom-element', MyCustomElement);
+// It accepts tag names:
 routeCollection.createRoute(/my-custom-route/, 'my-custom-element');
 
 // Functions too:
 routeCollection.createRoute(/product:(?<productId>.+)/, (request) => {
-    var element = document.createElement('my-product');
+    var element = document.createElement('my-custom-element');
     element.productId = request.getAttribute('productId');
     return element;
 });
@@ -53,9 +52,14 @@ document.body.append(tabManager);
 The router will react to anchors being clicked and forms being submitted.
 
 ```html
+<!-- The title abribute will be used as the label for the tab -->
 <a href="#my-custom-route" title="foo bar">foo bar</a>
 
+<!-- If you rather not have text hovering your anchors, data-tabbed-router-title is an alternative. -->
 <a href="#product:123" data-tabbed-router-title="foo bar">my product</a>
+
+<!-- Target blank will cause the manager to open a new tab, and so will CTRL + click. -->
+<a href="#product:456" target="_blank">open in new tab</a>
 ```
 
 See a working example in the `example/` directory.
